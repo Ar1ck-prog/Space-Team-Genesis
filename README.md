@@ -13,6 +13,8 @@
 
 Полный текст обоих кейсов: [docs/CASE.md](docs/CASE.md).
 
+Согласованный контракт будущей FinTech-среды: [docs/API_CONTRACT.md](docs/API_CONTRACT.md).
+
 **Выбранный трек:** _ещё не выбран_
 
 ## Дедлайн
