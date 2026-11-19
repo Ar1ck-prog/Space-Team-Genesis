@@ -52,6 +52,14 @@ class Generator:
         return episode_data()
 
 
+class AdvancingClock:
+    def __init__(self):
+        self.times = iter([0, 0, 61])
+
+    def __call__(self):
+        return next(self.times)
+
+
 class EnvironmentTests(unittest.TestCase):
     def environment(self, *, mode="open"):
         return AuditEnvironment(episode_data(), evaluation_mode=mode, evaluator=FixedEvaluator())
@@ -101,6 +109,50 @@ class EnvironmentTests(unittest.TestCase):
         self.assertEqual(result["reward"], -1)
         self.assertEqual(result["observation"]["error"]["code"], "invalid_submission")
 
+    def test_submit_with_unhashable_ids_is_a_terminal_schema_error(self):
+        environment = self.environment()
+        environment.reset()
+        result = environment.step({
+            "kind": "submit", "findings": {"episode_id": "ep_test_001", "findings": [{
+                "type": "fx_date_or_rate", "affected_ids": [{"id": "ledger:L-1"}],
+                "claimed_amount_minor": 1, "currency": "KZT",
+                "evidence_ids": ["ledger:L-1"], "explanation": "Invalid ID type",
+            }]},
+        })
+        self.assertTrue(result["terminated"])
+        self.assertEqual(result["reward"], -1)
+        self.assertEqual(result["observation"]["error"]["code"], "invalid_submission")
+
+    def test_submit_missing_findings_is_terminal(self):
+        environment = self.environment()
+        environment.reset()
+        result = environment.step({"kind": "submit"})
+        self.assertTrue(result["terminated"])
+        self.assertEqual(result["observation"]["error"]["code"], "invalid_submission")
+
+    def test_unsorted_ids_are_canonicalized_for_evaluator(self):
+        evaluator = FixedEvaluator()
+        environment = AuditEnvironment(episode_data(), evaluator=evaluator)
+        environment.reset()
+        result = environment.step({
+            "kind": "submit", "findings": {"episode_id": "ep_test_001", "findings": [{
+                "type": "duplicate_invoice", "affected_ids": ["invoice:I-2", "invoice:I-1"],
+                "claimed_amount_minor": 100, "currency": "KZT",
+                "evidence_ids": ["ledger:L-2", "ledger:L-1"], "explanation": "Order is irrelevant",
+            }]},
+        })
+        self.assertTrue(result["terminated"])
+        self.assertEqual(evaluator.findings["findings"][0]["affected_ids"], ["invoice:I-1", "invoice:I-2"])
+        self.assertEqual(evaluator.findings["findings"][0]["evidence_ids"], ["ledger:L-1", "ledger:L-2"])
+
+    def test_timeout_during_inspection_truncates_and_records_the_accepted_step(self):
+        environment = AuditEnvironment(episode_data(), evaluator=FixedEvaluator(), clock=AdvancingClock())
+        environment.reset()
+        result = environment.step({"kind": "list_records", "table": "ledger", "cursor": None, "limit": 1})
+        self.assertTrue(result["truncated"])
+        self.assertEqual(result["info"]["step"], 1)
+        self.assertEqual(environment.trajectory()[0]["observation"]["kind"], "truncated")
+
     def test_submit_rejects_noncanonical_or_unknown_currency_ids(self):
         environment = self.environment()
         environment.reset()
@@ -143,7 +195,7 @@ class EnvironmentTests(unittest.TestCase):
 
     def test_trusted_runtime_uses_reset_seed_and_config_without_exposing_them(self):
         generator = Generator()
-        runtime = EnvironmentRuntime(generator)
+        runtime = EnvironmentRuntime(generator, evaluator_factory=lambda data, config: FixedEvaluator())
         reset = runtime.reset(
             42,
             {
