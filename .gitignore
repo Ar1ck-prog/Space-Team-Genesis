@@ -24,3 +24,6 @@ out/
 Thumbs.db
 .vscode/
 .idea/
+
+# Closed evaluator data must never be committed
+episodes/**/private/

@@ -1,0 +1,480 @@
+{
+  "environment_version": "1.0.0",
+  "split": "train",
+  "selection": "first seed from 1000 satisfying each slot (auditgym/dataset.py)",
+  "episodes": [
+    {
+      "slot": "clean_small",
+      "description": "чистая компания, все типы разрешены",
+      "seed": 1008,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_4IIT4SDXIPJBTL6UGEZB",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "GBP",
+          "TRY",
+          "USD"
+        ],
+        "timezone": "Asia/Tokyo",
+        "period_start": "2025-08-01T00:00:00+09:00",
+        "record_counts": {
+          "ledger": 344,
+          "invoices": 42,
+          "payments": 25,
+          "fx": 182
+        },
+        "document_count": 67,
+        "n_issues": 0,
+        "issue_types": {},
+        "targets": {},
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "clean_medium",
+      "description": "чистая компания среднего размера",
+      "seed": 1000,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "medium",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_KHBUQN6FWCUWT3DIQWJ3",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "KZT",
+          "USD"
+        ],
+        "timezone": "America/Lima",
+        "period_start": "2025-06-01T00:00:00-05:00",
+        "record_counts": {
+          "ledger": 624,
+          "invoices": 59,
+          "payments": 38,
+          "fx": 90
+        },
+        "document_count": 97,
+        "n_issues": 0,
+        "issue_types": {},
+        "targets": {},
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "two_types_small",
+      "description": "только дубли и распределение платежа",
+      "seed": 1002,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_YWFKRO7D6QLFXRZW6N2U",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "JPY",
+          "KZT",
+          "USD"
+        ],
+        "timezone": "Asia/Dubai",
+        "period_start": "2025-01-01T00:00:00+04:00",
+        "record_counts": {
+          "ledger": 305,
+          "invoices": 43,
+          "payments": 27,
+          "fx": 182
+        },
+        "document_count": 70,
+        "n_issues": 4,
+        "issue_types": {
+          "duplicate_invoice": 1,
+          "payment_allocation": 3
+        },
+        "targets": {},
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "fx_only_small",
+      "description": "только FX, и у счёта, и у платежа",
+      "seed": 1004,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "fx_date_or_rate"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_2GDDP6KC2YYLBVDHDQPC",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "KWD",
+          "USD"
+        ],
+        "timezone": "Asia/Almaty",
+        "period_start": "2025-11-01T00:00:00+05:00",
+        "record_counts": {
+          "ledger": 371,
+          "invoices": 35,
+          "payments": 26,
+          "fx": 90
+        },
+        "document_count": 61,
+        "n_issues": 4,
+        "issue_types": {
+          "fx_date_or_rate": 4
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "invoice",
+            "payment"
+          ]
+        },
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "period_only_medium",
+      "description": "только отчётный период, и у счёта, и у платежа",
+      "seed": 1003,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "medium",
+        "enabled_issue_types": [
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_3RDQW5UI364KYTLCEJMZ",
+      "summary": {
+        "base_currency": "KZT",
+        "currencies": [
+          "CNY",
+          "KZT",
+          "USD"
+        ],
+        "timezone": "Asia/Tokyo",
+        "period_start": "2026-12-01T00:00:00+09:00",
+        "record_counts": {
+          "ledger": 769,
+          "invoices": 57,
+          "payments": 31,
+          "fx": 182
+        },
+        "document_count": 88,
+        "n_issues": 5,
+        "issue_types": {
+          "reporting_period": 5
+        },
+        "targets": {
+          "reporting_period": [
+            "invoice",
+            "payment"
+          ]
+        },
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "interaction_fx_invoice_medium",
+      "description": "сценарий: неверный курс счёта + частичное погашение",
+      "seed": 1012,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "medium",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_JCVCUHODOQICVHVZ4B7N",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "CNY",
+          "EUR",
+          "GBP",
+          "USD"
+        ],
+        "timezone": "America/Lima",
+        "period_start": "2026-09-01T00:00:00-05:00",
+        "record_counts": {
+          "ledger": 730,
+          "invoices": 66,
+          "payments": 42,
+          "fx": 270
+        },
+        "document_count": 108,
+        "n_issues": 4,
+        "issue_types": {
+          "duplicate_invoice": 1,
+          "fx_date_or_rate": 2,
+          "payment_allocation": 1
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "invoice"
+          ]
+        },
+        "scenarios": {
+          "fx_invoice_partial": 2
+        }
+      }
+    },
+    {
+      "slot": "interaction_boundary_plus_small",
+      "description": "сценарий: платёж на границе периода, смещение UTC+",
+      "seed": 1010,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_WH7MGOOYRGYD2AVXVJZG",
+      "summary": {
+        "base_currency": "EUR",
+        "currencies": [
+          "EUR",
+          "TRY",
+          "USD"
+        ],
+        "timezone": "Asia/Kolkata",
+        "period_start": "2026-08-01T00:00:00+05:30",
+        "record_counts": {
+          "ledger": 299,
+          "invoices": 34,
+          "payments": 24,
+          "fx": 182
+        },
+        "document_count": 58,
+        "n_issues": 5,
+        "issue_types": {
+          "duplicate_invoice": 2,
+          "fx_date_or_rate": 1,
+          "payment_allocation": 1,
+          "reporting_period": 1
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "payment"
+          ],
+          "reporting_period": [
+            "payment"
+          ]
+        },
+        "scenarios": {
+          "boundary_payment_fx_partial": 2
+        }
+      }
+    },
+    {
+      "slot": "interaction_boundary_minus_medium",
+      "description": "сценарий: платёж на границе периода, смещение UTC−",
+      "seed": 1054,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "medium",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_GHZB6VSK6MPG5NDCPCZO",
+      "summary": {
+        "base_currency": "EUR",
+        "currencies": [
+          "EUR",
+          "JPY"
+        ],
+        "timezone": "America/Bogota",
+        "period_start": "2025-01-01T00:00:00-05:00",
+        "record_counts": {
+          "ledger": 619,
+          "invoices": 64,
+          "payments": 38,
+          "fx": 91
+        },
+        "document_count": 102,
+        "n_issues": 4,
+        "issue_types": {
+          "fx_date_or_rate": 1,
+          "payment_allocation": 2,
+          "reporting_period": 1
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "payment"
+          ],
+          "reporting_period": [
+            "payment"
+          ]
+        },
+        "scenarios": {
+          "boundary_payment_fx_partial": 2
+        }
+      }
+    },
+    {
+      "slot": "mixed_large",
+      "description": "крупная компания, 5+ одиночных ошибок трёх и более типов",
+      "seed": 1015,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "large",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_QSJIUHZ64X7TCWQPZVYJ",
+      "summary": {
+        "base_currency": "USD",
+        "currencies": [
+          "TRY",
+          "USD"
+        ],
+        "timezone": "Europe/Istanbul",
+        "period_start": "2025-10-01T00:00:00+03:00",
+        "record_counts": {
+          "ledger": 1422,
+          "invoices": 95,
+          "payments": 60,
+          "fx": 91
+        },
+        "document_count": 155,
+        "n_issues": 8,
+        "issue_types": {
+          "duplicate_invoice": 3,
+          "fx_date_or_rate": 1,
+          "payment_allocation": 2,
+          "reporting_period": 2
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "invoice"
+          ],
+          "reporting_period": [
+            "invoice",
+            "payment"
+          ]
+        },
+        "scenarios": {}
+      }
+    },
+    {
+      "slot": "both_interactions_large",
+      "description": "крупная компания, оба сценария сразу",
+      "seed": 1005,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "large",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "episode_id": "ep_MEHSHN6BDG22SZ7AVP3H",
+      "summary": {
+        "base_currency": "KZT",
+        "currencies": [
+          "EUR",
+          "GBP",
+          "KZT",
+          "USD"
+        ],
+        "timezone": "Asia/Tokyo",
+        "period_start": "2026-03-01T00:00:00+09:00",
+        "record_counts": {
+          "ledger": 1448,
+          "invoices": 96,
+          "payments": 57,
+          "fx": 273
+        },
+        "document_count": 153,
+        "n_issues": 9,
+        "issue_types": {
+          "duplicate_invoice": 1,
+          "fx_date_or_rate": 5,
+          "payment_allocation": 2,
+          "reporting_period": 1
+        },
+        "targets": {
+          "fx_date_or_rate": [
+            "invoice",
+            "payment"
+          ],
+          "reporting_period": [
+            "invoice"
+          ]
+        },
+        "scenarios": {
+          "boundary_payment_fx_partial": 2,
+          "fx_invoice_partial": 2
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_4IIT4SDXIPJBTL6UGEZB",
+  "base_currency": "USD",
+  "currency_decimals": {
+    "GBP": 2,
+    "TRY": 2,
+    "USD": 2
+  },
+  "period_start": "2025-08-01T00:00:00+09:00",
+  "period_end": "2025-08-31T23:59:59+09:00",
+  "timezone": "Asia/Tokyo",
+  "record_counts": {
+    "ledger": 344,
+    "invoices": 42,
+    "payments": 25,
+    "fx": 182
+  },
+  "document_count": 67,
+  "rounding_rule": "half_up_to_currency_minor"
+}

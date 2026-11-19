@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_MEHSHN6BDG22SZ7AVP3H",
+  "base_currency": "KZT",
+  "currency_decimals": {
+    "EUR": 2,
+    "GBP": 2,
+    "KZT": 2,
+    "USD": 2
+  },
+  "period_start": "2026-03-01T00:00:00+09:00",
+  "period_end": "2026-03-31T23:59:59+09:00",
+  "timezone": "Asia/Tokyo",
+  "record_counts": {
+    "ledger": 1448,
+    "invoices": 96,
+    "payments": 57,
+    "fx": 273
+  },
+  "document_count": 153,
+  "rounding_rule": "half_up_to_currency_minor"
+}

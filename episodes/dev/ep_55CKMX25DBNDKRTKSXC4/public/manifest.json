@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_55CKMX25DBNDKRTKSXC4",
+  "base_currency": "EUR",
+  "currency_decimals": {
+    "CNY": 2,
+    "EUR": 2
+  },
+  "period_start": "2026-06-01T00:00:00-03:00",
+  "period_end": "2026-06-30T23:59:59-03:00",
+  "timezone": "America/Sao_Paulo",
+  "record_counts": {
+    "ledger": 665,
+    "invoices": 59,
+    "payments": 33,
+    "fx": 90
+  },
+  "document_count": 92,
+  "rounding_rule": "half_up_to_currency_minor"
+}
