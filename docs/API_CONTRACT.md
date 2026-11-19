@@ -1,6 +1,6 @@
 # Контракт API FinTech-среды
 
-**Версия:** 1.0.0 · **Статус:** согласовано командой, ожидает реализации · **Дата:** 2026-11-19.
+**Версия:** 1.1.0 · **Статус:** 1.0.0 согласована командой; изменения 1.1.0 (раздел 10) предложены в PR по issue #2 и ждут ревью · **Дата:** 2026-11-19.
 
 Этот контракт описывает будущую воспроизводимую RL-среду для расследования синтетических финансовых ошибок. Он не означает, что API уже реализован. При неоднозначности кейса пометка «решение команды» означает минимальное согласованное решение.
 
@@ -34,7 +34,7 @@ ID — ASCII длиной 1–128, без пробелов; регистр не 
 | Строка FX | `fx:<date>:<source>:<target>` | запись, evidence |
 | Документ | `doc:<doc_id>` | документ, evidence |
 
-`affected_ids` — канонический набор публичных записей, образующих расхождение; `doc:*` запрещён. Для `duplicate_invoice` нужны минимум два `invoice:*`; для `payment_allocation` — один `payment:*` и минимум один `invoice:*`; для `fx_date_or_rate` и `reporting_period` — минимум один `ledger:*`. Точный набор задаёт эталон. `evidence_ids` — доступные открытые записи и/или документы, содержащие один полный допустимый набор доказательств; внутренние пути не являются ID.
+`affected_ids` — канонический набор публичных записей, образующих расхождение; `doc:*` запрещён. Для `duplicate_invoice` нужны минимум два `invoice:*`; для `payment_allocation` — один `payment:*` и минимум один `invoice:*`; для `fx_date_or_rate` и `reporting_period` — минимум один `ledger:*`. Точный набор задаёт эталон по правилам раздела 10.3. `evidence_ids` — доступные открытые записи и/или документы, содержащие один полный допустимый набор доказательств; внутренние пути не являются ID.
 
 ## 3. Среда
 
@@ -72,14 +72,14 @@ ID — ASCII длиной 1–128, без пробелов; регистр не 
       "document_count": 105,
       "rounding_rule": "half_up_to_currency_minor"
     },
-    "policy_summary": {"fx_rate_date": "payment_timestamp_local_date", "period_boundary": "inclusive_start_and_end", "rounding": "half_up_to_currency_minor"},
+    "policy_summary": {"fx_rate_date": "document_timestamp_local_date", "period_boundary": "inclusive_start_and_end", "rounding": "half_up_to_currency_minor", "fx_rate_direction": "target_per_source", "ledger_currency": "base_currency", "accounts": {"1000": "Cash", "1200": "Accounts receivable", "2400": "Unapplied receipts", "4000": "Revenue", "6100": "Rent", "6200": "Salaries", "6300": "Utilities", "6400": "Software subscriptions", "6500": "Bank fees", "7900": "FX gain and loss"}, "invoice_posting": "debit_1200_credit_4000_at_issued_at_local_date_rate", "payment_posting": "debit_1000_at_payment_rate_credit_1200_per_allocation_at_invoice_rate_excess_to_2400_difference_to_7900", "allocation_order": "invoice_refs_in_order_up_to_outstanding", "refunds": "negative_amount_debit_2400_credit_1000"},
     "remaining_steps": 100
   },
   "info": {"episode_id": "ep_01JABCDEF1234567890", "environment_version": "1.0.0", "step": 0}
 }
 ```
 
-`record_counts` всегда содержит все четыре таблицы и неотрицательные безопасные целые. `info` не содержит seed, режим, truth/provenance, пути или диагностику оценщика.
+`record_counts` всегда содержит все четыре таблицы и неотрицательные безопасные целые. `policy_summary` совпадает с открытым `policy.json` эпизода; все его поля обязательны (раздел 10.2). `info` не содержит seed, режим, truth/provenance, пути или диагностику оценщика.
 
 ### `step(action)`
 
@@ -213,3 +213,54 @@ Seed и `evaluation_mode` выбирает сервер; они, truth/provenanc
 | Генератор, семантика среды, matcher, награда, базовые политики, оценка качества | Дарий + Арик |
 
 Арик не получает самостоятельных задач по бэкенду. Обязательный запуск будущей реализации остаётся офлайн, без платных API и GPU.
+
+## 10. Артефакты генератора и учётная политика (добавлено в 1.1.0)
+
+Реализация: issue #2, подробности в [GENERATOR.md](GENERATOR.md).
+
+### 10.1. Файлы эпизода
+
+`<episode_id>/public/`: `manifest.json` (ровно поля manifest из раздела 3), `policy.json` (= `policy_summary`), `ledger.csv`, `invoices.jsonl`, `payments.jsonl`, `fx.csv`. `<episode_id>/private/`: `truth.json`, `provenance.json`; эти файлы видит только оценщик.
+
+Колонки файлов совпадают с кейсом: `ledger.csv` — `row_id, timestamp, account, debit_minor, credit_minor, currency, entity_id, invoice_id, payment_id`; `invoices.jsonl` — `doc_id, invoice_id, entity_id, issued_at, due_at, currency, total_minor, line_items` (позиция: `description, quantity, unit_price_minor, amount_minor`); `payments.jsonl` — `doc_id, payment_id, timestamp, currency, amount_minor, invoice_refs`; `fx.csv` — `date, source_currency, target_currency, rate`. Значения ID в файлах уже канонические (`ledger:…`, `invoice:…`, `payment:…`, `doc:…`, `entity:…`). В наблюдениях раздела 3 среда переименовывает `row_id` и `doc_id` в `id`, не меняя значений; запись курса в наблюдении получает `id` вида `fx:<date>:<source>:<target>`. Отсутствующая ссылка: JSON `null`, в CSV литерал `null`. Все строки книги в базовой валюте. Отрицательный `amount_minor` платежа означает возврат.
+
+Один `(seed, config, environment_version)` даёт байтово одинаковые файлы (UTF-8, LF). На данные влияют только `dataset_profile`, `company_size` и `enabled_issue_types`; `max_steps`, `time_limit_seconds` и `evaluation_mode` данные не меняют.
+
+### 10.2. `policy_summary` / `policy.json`
+
+Все поля обязательны:
+
+| Поле | Значение в v1.1 | Смысл |
+| --- | --- | --- |
+| `fx_rate_date` | `document_timestamp_local_date` | дата курса — календарная дата документа в часовом поясе компании: у счёта `issued_at`, у платежа `timestamp` |
+| `period_boundary` | `inclusive_start_and_end` | документ относится к периоду, если его момент лежит в `[period_start, period_end]` |
+| `rounding` | `half_up_to_currency_minor` | как `manifest.rounding_rule`, один раз на конвертируемую сумму |
+| `fx_rate_direction` | `target_per_source` | 1 единица `source_currency` = `rate` единиц `target_currency` |
+| `ledger_currency` | `base_currency` | все строки книги в базовой валюте |
+| `accounts` | объект «код → название» | план счетов эпизода |
+| `invoice_posting` | `debit_1200_credit_4000_at_issued_at_local_date_rate` | проводка счёта |
+| `payment_posting` | `debit_1000_at_payment_rate_credit_1200_per_allocation_at_invoice_rate_excess_to_2400_difference_to_7900` | проводка платежа |
+| `allocation_order` | `invoice_refs_in_order_up_to_outstanding` | платёж гасит счета из `invoice_refs` по порядку, каждый не больше остатка |
+| `refunds` | `negative_amount_debit_2400_credit_1000` | возврат ранее нераспределённой суммы |
+
+Причина изменения: без этих правил агент не может отличить законную переплату, разбитый или групповой платёж от ошибки распределения и не знает, по какому курсу гасится дебиторка. Это противоречило бы требованию кейса «нельзя требовать недоступный факт». В 1.0.0 пример `fx_rate_date` был `payment_timestamp_local_date`, но счёт в иностранной валюте тоже пересчитывается, поэтому значение расширено до даты документа.
+
+### 10.3. Эталон: суммы, `affected_ids`, доказательства
+
+Сумма — абсолютное искажение книги в минимальных единицах базовой валюты; валюта — базовая.
+
+| `type` | Цель | Точный `affected_ids` | Сумма |
+| --- | --- | --- | --- |
+| `duplicate_invoice` | счёт | оба `invoice:*` (оригинал и дубль) | проводка 1200 дубля |
+| `payment_allocation` | платёж | `payment:*` и `invoice:*`, который он должен был погасить | недопогашенная сумма (строка 2400 платежа) |
+| `fx_date_or_rate` | счёт | строки 1200 и 4000 счёта | разница с пересчётом по политике |
+| `fx_date_or_rate` | платёж | строка 1000 платежа | разница с пересчётом по политике |
+| `reporting_period` | счёт | все строки проводки счёта | сумма проводки (1200) |
+| `reporting_period` | платёж | все строки проводки платежа | строка 1000 |
+
+Допустимые наборы доказательств перечислены в `truth.json.evidence_sets` и описаны в GENERATOR.md; каждый состоит из открытых `doc:*`, `ledger:*`, `fx:*` и сам по себе достаточен для пересчёта суммы. `truth.json`: `{episode_id, issues:[{issue_id, type, target, scenario, affected_ids, expected_amount_minor, currency, evidence_sets}]}`.
+
+### 10.4. Журнал изменений
+
+- **1.1.0**: обязательные поля `policy_summary` (10.2), значение `fx_rate_date` = `document_timestamp_local_date`, точные правила эталона (10.3), формат файлов эпизода (10.1). Публичные поля наблюдений, кроме `policy_summary`, и действия не меняются.
+- **1.0.0**: первая согласованная версия.

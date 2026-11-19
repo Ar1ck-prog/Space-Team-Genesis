@@ -1,0 +1,366 @@
+{
+  "description": "Generator fixtures for issue #2. Each entry: contract config, seed, and plan overrides merged onto config.empty_plan(company_size). Expectations are checked by tests/test_generator.py.",
+  "fixtures": [
+    {
+      "name": "clean_small",
+      "seed": 101,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {},
+      "expect": {
+        "types": {},
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "clean_heavy_distractors",
+      "seed": 102,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "medium",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "distractors": {
+          "recurring_invoices": 2,
+          "split_payments": 3,
+          "multi_invoice_payments": 2,
+          "overpayment_refunds": 2,
+          "opening_invoices": 3,
+          "boundary_documents": 4
+        }
+      },
+      "expect": {
+        "types": {},
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "duplicate_invoice",
+      "seed": 103,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "duplicate_invoice": 2
+        }
+      },
+      "expect": {
+        "types": {
+          "duplicate_invoice": 2
+        },
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "payment_allocation",
+      "seed": 104,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "payment_allocation"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "payment_allocation": 2
+        }
+      },
+      "expect": {
+        "types": {
+          "payment_allocation": 2
+        },
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "fx_invoice",
+      "seed": 105,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "fx_date_or_rate"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "fx_date_or_rate": 2
+        },
+        "targets": {
+          "fx_date_or_rate": "invoice"
+        }
+      },
+      "expect": {
+        "types": {
+          "fx_date_or_rate": 2
+        },
+        "targets": [
+          "invoice"
+        ],
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "fx_payment",
+      "seed": 106,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "fx_date_or_rate"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "fx_date_or_rate": 2
+        },
+        "targets": {
+          "fx_date_or_rate": "payment"
+        }
+      },
+      "expect": {
+        "types": {
+          "fx_date_or_rate": 2
+        },
+        "targets": [
+          "payment"
+        ],
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "period_invoice",
+      "seed": 107,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "reporting_period": 2
+        },
+        "targets": {
+          "reporting_period": "invoice"
+        }
+      },
+      "expect": {
+        "types": {
+          "reporting_period": 2
+        },
+        "targets": [
+          "invoice"
+        ],
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "period_payment",
+      "seed": 108,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "reporting_period": 2
+        },
+        "targets": {
+          "reporting_period": "payment"
+        }
+      },
+      "expect": {
+        "types": {
+          "reporting_period": 2
+        },
+        "targets": [
+          "payment"
+        ],
+        "scenarios": {}
+      }
+    },
+    {
+      "name": "interaction_fx_invoice_partial",
+      "seed": 109,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "payment_allocation",
+          "fx_date_or_rate"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "interactions": {
+          "fx_invoice_partial": 1
+        }
+      },
+      "expect": {
+        "types": {
+          "fx_date_or_rate": 1,
+          "payment_allocation": 1
+        },
+        "scenarios": {
+          "fx_invoice_partial": 2
+        }
+      }
+    },
+    {
+      "name": "interaction_boundary_positive_offset",
+      "seed": 2,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "interactions": {
+          "boundary_payment_fx_partial": 1
+        }
+      },
+      "expect": {
+        "types": {
+          "fx_date_or_rate": 1,
+          "payment_allocation": 1
+        },
+        "scenarios": {
+          "boundary_payment_fx_partial": 2
+        },
+        "utc_offset_sign": "+"
+      }
+    },
+    {
+      "name": "interaction_boundary_negative_offset",
+      "seed": 1,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "small",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "interactions": {
+          "boundary_payment_fx_partial": 1
+        }
+      },
+      "expect": {
+        "types": {
+          "fx_date_or_rate": 1,
+          "payment_allocation": 1
+        },
+        "scenarios": {
+          "boundary_payment_fx_partial": 2
+        },
+        "utc_offset_sign": "-"
+      }
+    },
+    {
+      "name": "mixed_max_12_large",
+      "seed": 110,
+      "config": {
+        "dataset_profile": "train",
+        "company_size": "large",
+        "enabled_issue_types": [
+          "duplicate_invoice",
+          "payment_allocation",
+          "fx_date_or_rate",
+          "reporting_period"
+        ],
+        "max_steps": 100,
+        "time_limit_seconds": 60,
+        "evaluation_mode": "open"
+      },
+      "plan": {
+        "issues": {
+          "duplicate_invoice": 2,
+          "payment_allocation": 2,
+          "fx_date_or_rate": 2,
+          "reporting_period": 2
+        },
+        "interactions": {
+          "fx_invoice_partial": 1,
+          "boundary_payment_fx_partial": 1
+        }
+      },
+      "expect": {
+        "types": {
+          "duplicate_invoice": 2,
+          "payment_allocation": 4,
+          "fx_date_or_rate": 4,
+          "reporting_period": 2
+        },
+        "scenarios": {
+          "fx_invoice_partial": 2,
+          "boundary_payment_fx_partial": 2
+        }
+      }
+    }
+  ]
+}
