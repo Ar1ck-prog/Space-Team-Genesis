@@ -1,0 +1,3580 @@
+{
+  "description": "Matcher and reward test vectors for issue #4. 'T' refers to truth_T. Expected tp/fp/fn are set by hand; f1 and reward follow the contract formulas. Run by tests/test_matcher_vectors.py.",
+  "episode_id": "ep_VECTORTEST000000000",
+  "currencies": [
+    "KZT",
+    "USD"
+  ],
+  "truth_T": [
+    {
+      "issue_id": "issue_01",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "invoice:INV-A",
+        "invoice:INV-B"
+      ],
+      "expected_amount_minor": 150000,
+      "currency": "KZT",
+      "evidence_sets": [
+        [
+          "doc:DOC-A",
+          "doc:DOC-B",
+          "ledger:L-1"
+        ],
+        [
+          "doc:DOC-A",
+          "doc:DOC-B",
+          "ledger:L-2"
+        ]
+      ]
+    },
+    {
+      "issue_id": "issue_02",
+      "type": "fx_date_or_rate",
+      "affected_ids": [
+        "ledger:L-7",
+        "ledger:L-8"
+      ],
+      "expected_amount_minor": 2056,
+      "currency": "KZT",
+      "evidence_sets": [
+        [
+          "doc:DOC-C",
+          "fx:2026-11-02:USD:KZT",
+          "ledger:L-7"
+        ],
+        [
+          "doc:DOC-C",
+          "fx:2026-11-02:USD:KZT",
+          "ledger:L-8"
+        ]
+      ]
+    },
+    {
+      "issue_id": "issue_03",
+      "type": "payment_allocation",
+      "affected_ids": [
+        "invoice:INV-C",
+        "payment:PAY-1"
+      ],
+      "expected_amount_minor": 40000,
+      "currency": "KZT",
+      "evidence_sets": [
+        [
+          "doc:DOC-C",
+          "doc:DOC-P1",
+          "ledger:L-9"
+        ]
+      ]
+    }
+  ],
+  "vectors": [
+    {
+      "name": "all_correct",
+      "why": "full correct answer with evidence",
+      "truth": "T",
+      "inspection_steps": 20,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 0.96
+      }
+    },
+    {
+      "name": "all_correct_zero_steps",
+      "why": "maximum reward",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 1.0
+      }
+    },
+    {
+      "name": "all_correct_99_steps",
+      "why": "step cost only slightly separates equal answers",
+      "truth": "T",
+      "inspection_steps": 99,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 0.802
+      }
+    },
+    {
+      "name": "silence_on_dirty",
+      "why": "silence on erroneous books",
+      "truth": "T",
+      "inspection_steps": 5,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": []
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "silence_on_clean",
+      "why": "empty truth and empty findings: F1=1",
+      "truth": [],
+      "inspection_steps": 5,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": []
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 0.99
+      }
+    },
+    {
+      "name": "accusation_on_clean",
+      "why": "empty truth with findings: F1=0",
+      "truth": [],
+      "inspection_steps": 5,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "one_of_three",
+      "why": "partial recall",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": -0.02
+      }
+    },
+    {
+      "name": "two_of_three",
+      "why": "one issue missed",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "f1": 0.8,
+        "reward": 0.5800000000000001
+      }
+    },
+    {
+      "name": "correct_plus_false",
+      "why": "one FP among correct findings",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-X",
+              "invoice:INV-Y"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "f1": 0.8571428571428571,
+        "reward": 0.6942857142857142
+      }
+    },
+    {
+      "name": "duplicate_finding",
+      "why": "a repeated finding is a FP, no extra credit",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 1,
+        "fn": 0,
+        "f1": 0.8571428571428571,
+        "reward": 0.6942857142857142
+      }
+    },
+    {
+      "name": "triple_finding",
+      "why": "three copies of one finding",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 2,
+        "fn": 2,
+        "f1": 0.3333333333333333,
+        "reward": -0.3533333333333334
+      }
+    },
+    {
+      "name": "order_irrelevant",
+      "why": "submission order does not matter",
+      "truth": "T",
+      "inspection_steps": 10,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 0.98
+      }
+    },
+    {
+      "name": "clip_floor",
+      "why": "reward never goes below -1",
+      "truth": "T",
+      "inspection_steps": 99,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 1,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "wrong_type",
+      "why": "type must match",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "reporting_period",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_plus_one",
+      "why": "tolerance is 0",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150001,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_minus_one",
+      "why": "tolerance is 0",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 149999,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "other_manifest_currency",
+      "why": "currency must match the truth",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "USD",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "affected_subset",
+      "why": "affected set must be exact",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "affected_superset",
+      "why": "affected set must be exact",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8",
+              "ledger:L-9"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "affected_unsorted",
+      "why": "arrays are canonicalized by sorting",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-B",
+              "invoice:INV-A"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": 0.0
+      }
+    },
+    {
+      "name": "affected_case_changed_local",
+      "why": "ids are case-sensitive",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-B",
+              "invoice:inv-a"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "guessed_ids",
+      "why": "plausible but wrong ids",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-2"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "evidence_alternative_set",
+      "why": "any acceptable set is enough",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-2"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": 0.0
+      }
+    },
+    {
+      "name": "evidence_extra_ids",
+      "why": "extra evidence is allowed",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1",
+              "ledger:L-99"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": 0.0
+      }
+    },
+    {
+      "name": "evidence_partial",
+      "why": "an incomplete set does not count",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "evidence_mixed_sets",
+      "why": "pieces of two sets do not make a full set",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "evidence_alias_not_accepted",
+      "why": "invoice:* does not replace doc:*",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "evidence_unsupported",
+      "why": "a single document is not enough",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-P1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "explanation_does_not_matter",
+      "why": "persuasive text gives nothing",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. Verified by a senior auditor. "
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": 0.0
+      }
+    },
+    {
+      "name": "ambiguous_max_matching",
+      "why": "greedy would match 1; the maximum matching finds 2",
+      "truth": [
+        {
+          "issue_id": "issue_01",
+          "type": "reporting_period",
+          "affected_ids": [
+            "ledger:L-20"
+          ],
+          "expected_amount_minor": 500,
+          "currency": "KZT",
+          "evidence_sets": [
+            [
+              "doc:DOC-X"
+            ]
+          ]
+        },
+        {
+          "issue_id": "issue_02",
+          "type": "reporting_period",
+          "affected_ids": [
+            "ledger:L-20"
+          ],
+          "expected_amount_minor": 500,
+          "currency": "KZT",
+          "evidence_sets": [
+            [
+              "doc:DOC-Y"
+            ]
+          ]
+        }
+      ],
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "reporting_period",
+            "affected_ids": [
+              "ledger:L-20"
+            ],
+            "claimed_amount_minor": 500,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-X",
+              "doc:DOC-Y"
+            ],
+            "explanation": "a"
+          },
+          {
+            "type": "reporting_period",
+            "affected_ids": [
+              "ledger:L-20"
+            ],
+            "claimed_amount_minor": 500,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-X"
+            ],
+            "explanation": "a"
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "f1": 1.0,
+        "reward": 1.0
+      }
+    },
+    {
+      "name": "ambiguous_one_finding",
+      "why": "one finding satisfies only one issue",
+      "truth": [
+        {
+          "issue_id": "issue_01",
+          "type": "reporting_period",
+          "affected_ids": [
+            "ledger:L-20"
+          ],
+          "expected_amount_minor": 500,
+          "currency": "KZT",
+          "evidence_sets": [
+            [
+              "doc:DOC-X"
+            ]
+          ]
+        },
+        {
+          "issue_id": "issue_02",
+          "type": "reporting_period",
+          "affected_ids": [
+            "ledger:L-20"
+          ],
+          "expected_amount_minor": 500,
+          "currency": "KZT",
+          "evidence_sets": [
+            [
+              "doc:DOC-Y"
+            ]
+          ]
+        }
+      ],
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "reporting_period",
+            "affected_ids": [
+              "ledger:L-20"
+            ],
+            "claimed_amount_minor": 500,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-X",
+              "doc:DOC-Y"
+            ],
+            "explanation": "a"
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "f1": 0.6666666666666666,
+        "reward": 0.33333333333333326
+      }
+    },
+    {
+      "name": "wrong_episode",
+      "why": "episode_id must match",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_OTHER",
+        "findings": []
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "missing_findings_key",
+      "why": "both keys are required",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000"
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "extra_top_key",
+      "why": "no extra keys",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [],
+        "note": "x"
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "findings_not_array",
+      "why": "findings must be an array",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": {}
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "submission_not_object",
+      "why": "findings must be an object",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": [
+        "ep_VECTORTEST000000000"
+      ],
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "too_many_findings",
+      "why": "31 findings",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "finding_extra_key",
+      "why": "no extra keys in a finding",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records.",
+            "confidence": 1
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "finding_missing_key",
+      "why": "all fields are required",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ]
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "unknown_type",
+      "why": "type enum",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fraud",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "repeated_affected",
+      "why": "repeats are invalid",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "repeated_evidence",
+      "why": "repeats are invalid",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "doc_in_affected",
+      "why": "doc:* is forbidden in affected_ids",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "doc:DOC-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "bad_prefix",
+      "why": "unknown namespace",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "inv:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "prefix_case",
+      "why": "namespace is case-sensitive",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "Invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "duplicate_one_invoice",
+      "why": "duplicate_invoice needs >= 2 invoice ids",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "allocation_no_payment",
+      "why": "payment_allocation needs one payment id",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "allocation_two_payments",
+      "why": "payment_allocation needs exactly one payment id",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "payment_allocation",
+            "affected_ids": [
+              "invoice:INV-C",
+              "payment:PAY-1",
+              "payment:PAY-2"
+            ],
+            "claimed_amount_minor": 40000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "doc:DOC-P1",
+              "ledger:L-9"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "fx_without_ledger",
+      "why": "fx_date_or_rate needs a ledger id",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "invoice:INV-C"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "empty_evidence",
+      "why": "1..10 evidence ids",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "eleven_evidence",
+      "why": "1..10 evidence ids",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "ledger:L-0",
+              "ledger:L-1",
+              "ledger:L-2",
+              "ledger:L-3",
+              "ledger:L-4",
+              "ledger:L-5",
+              "ledger:L-6",
+              "ledger:L-7",
+              "ledger:L-8",
+              "ledger:L-9",
+              "ledger:L-10"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "empty_affected",
+      "why": "affected_ids cannot be empty",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_float",
+      "why": "integer required",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000.0,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_bool",
+      "why": "bool is not an integer",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": true,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_string",
+      "why": "integer required",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": "150000",
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "amount_unsafe",
+      "why": "outside the JS safe range",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 9007199254740992,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "currency_not_in_manifest",
+      "why": "currency must be in the manifest",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "EUR",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "currency_lowercase",
+      "why": "currency codes are exact",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "kzt",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "explanation_empty",
+      "why": "1..1000 code points",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": ""
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "explanation_1001",
+      "why": "1..1000 code points",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "duplicate_with_ledger_id",
+      "why": "duplicate_invoice affected_ids are invoice ids only",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B",
+              "ledger:L-1"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "fx_short_date",
+      "why": "fx id must have the form fx:<YYYY-MM-DD>:<SRC>:<TGT>",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-2:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "fx_lowercase_currency",
+      "why": "fx id currencies are upper-case",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-11-02:usd:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "id_with_space",
+      "why": "no whitespace",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "id_non_ascii",
+      "why": "ASCII only",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-Ä",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "id_too_long",
+      "why": "at most 128 characters",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "id_colon_in_local",
+      "why": "the local part has no colon",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV:A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "thirty_findings",
+      "why": "30 findings are allowed",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          },
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 29,
+        "fn": 2,
+        "f1": 0.06060606060606061,
+        "reward": -0.8787878787878788
+      }
+    },
+    {
+      "name": "explanation_1000_code_points",
+      "why": "1000 code points (non-BMP) are allowed",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰💰"
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 1,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.5,
+        "reward": 0.0
+      }
+    },
+    {
+      "name": "fx_nonexistent_date",
+      "why": "a well-formed fx id for a non-existent date is valid structure, it just matches nothing",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-13-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "id_128_chars",
+      "why": "exactly 128 characters is allowed (here a wrong id, so FP)",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "invoice:INV-B"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    }
+  ]
+}
