@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_5VIAR4YKWJ7RWC4ZWTQW",
+  "base_currency": "KZT",
+  "currency_decimals": {
+    "GBP": 2,
+    "KZT": 2,
+    "TRY": 2
+  },
+  "period_start": "2025-10-01T00:00:00+09:00",
+  "period_end": "2025-10-31T23:59:59+09:00",
+  "timezone": "Asia/Tokyo",
+  "record_counts": {
+    "ledger": 1303,
+    "invoices": 85,
+    "payments": 58,
+    "fx": 182
+  },
+  "document_count": 143,
+  "rounding_rule": "half_up_to_currency_minor"
+}

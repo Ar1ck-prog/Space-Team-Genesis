@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_2GDDP6KC2YYLBVDHDQPC",
+  "base_currency": "USD",
+  "currency_decimals": {
+    "KWD": 3,
+    "USD": 2
+  },
+  "period_start": "2025-11-01T00:00:00+05:00",
+  "period_end": "2025-11-30T23:59:59+05:00",
+  "timezone": "Asia/Almaty",
+  "record_counts": {
+    "ledger": 371,
+    "invoices": 35,
+    "payments": 26,
+    "fx": 90
+  },
+  "document_count": 61,
+  "rounding_rule": "half_up_to_currency_minor"
+}

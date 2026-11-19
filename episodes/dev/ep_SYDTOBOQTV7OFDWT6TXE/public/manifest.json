@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_SYDTOBOQTV7OFDWT6TXE",
+  "base_currency": "KZT",
+  "currency_decimals": {
+    "KZT": 2,
+    "TRY": 2,
+    "USD": 2
+  },
+  "period_start": "2026-10-01T00:00:00-05:00",
+  "period_end": "2026-10-31T23:59:59-05:00",
+  "timezone": "America/Bogota",
+  "record_counts": {
+    "ledger": 289,
+    "invoices": 32,
+    "payments": 20,
+    "fx": 182
+  },
+  "document_count": 52,
+  "rounding_rule": "half_up_to_currency_minor"
+}

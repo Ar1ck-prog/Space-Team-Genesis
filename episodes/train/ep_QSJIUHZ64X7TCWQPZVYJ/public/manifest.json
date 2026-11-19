@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_QSJIUHZ64X7TCWQPZVYJ",
+  "base_currency": "USD",
+  "currency_decimals": {
+    "TRY": 2,
+    "USD": 2
+  },
+  "period_start": "2025-10-01T00:00:00+03:00",
+  "period_end": "2025-10-31T23:59:59+03:00",
+  "timezone": "Europe/Istanbul",
+  "record_counts": {
+    "ledger": 1422,
+    "invoices": 95,
+    "payments": 60,
+    "fx": 91
+  },
+  "document_count": 155,
+  "rounding_rule": "half_up_to_currency_minor"
+}

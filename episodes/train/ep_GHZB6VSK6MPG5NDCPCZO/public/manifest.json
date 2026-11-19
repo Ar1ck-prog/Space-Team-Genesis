@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_GHZB6VSK6MPG5NDCPCZO",
+  "base_currency": "EUR",
+  "currency_decimals": {
+    "EUR": 2,
+    "JPY": 0
+  },
+  "period_start": "2025-01-01T00:00:00-05:00",
+  "period_end": "2025-01-31T23:59:59-05:00",
+  "timezone": "America/Bogota",
+  "record_counts": {
+    "ledger": 619,
+    "invoices": 64,
+    "payments": 38,
+    "fx": 91
+  },
+  "document_count": 102,
+  "rounding_rule": "half_up_to_currency_minor"
+}

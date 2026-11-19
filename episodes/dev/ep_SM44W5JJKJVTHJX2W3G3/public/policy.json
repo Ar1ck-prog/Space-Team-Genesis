@@ -1,0 +1,23 @@
+{
+  "fx_rate_date": "document_timestamp_local_date",
+  "period_boundary": "inclusive_start_and_end",
+  "rounding": "half_up_to_currency_minor",
+  "fx_rate_direction": "target_per_source",
+  "ledger_currency": "base_currency",
+  "accounts": {
+    "1000": "Cash",
+    "1200": "Accounts receivable",
+    "2400": "Unapplied receipts",
+    "4000": "Revenue",
+    "6100": "Rent",
+    "6200": "Salaries",
+    "6300": "Utilities",
+    "6400": "Software subscriptions",
+    "6500": "Bank fees",
+    "7900": "FX gain and loss"
+  },
+  "invoice_posting": "debit_1200_credit_4000_at_issued_at_local_date_rate",
+  "payment_posting": "debit_1000_at_payment_rate_credit_1200_per_allocation_at_invoice_rate_excess_to_2400_difference_to_7900",
+  "allocation_order": "invoice_refs_in_order_up_to_outstanding",
+  "refunds": "negative_amount_debit_2400_credit_1000"
+}
