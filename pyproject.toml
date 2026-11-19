@@ -1,0 +1,8 @@
+[project]
+name = "space-team-genesis"
+version = "0.1.0"
+description = "Offline RL environment for synthetic financial-audit investigations"
+requires-python = ">=3.11"
+
+[tool.unittest]
+start-directory = "tests"
