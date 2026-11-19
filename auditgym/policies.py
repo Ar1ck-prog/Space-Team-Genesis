@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import copy
+import json
 import random
 import time
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol
 
-from .books import Books, audit
+from .timeutil import parse
 
 TABLES = ("ledger", "invoices", "payments", "fx")
 
@@ -17,13 +19,14 @@ class EvaluationMetrics:
     precision: float
     recall: float
     f1: float
+    return_: float | None = None
 
 
 @dataclass(frozen=True)
 class PolicyRun:
     policy: str
     episode_id: str
-    return_: float | int
+    return_: float | int | None
     inspection_steps: int
     elapsed_seconds: float
     terminated: bool
@@ -46,7 +49,11 @@ def run_policy(environment: Any, policy: Any, *, metrics_provider: MetricsProvid
         if final["terminated"] or final["truncated"]:
             break
     metrics = metrics_provider.metrics_for_completed_episode(environment) if metrics_provider else None
-    return PolicyRun(policy.name, reset["info"]["episode_id"], final["reward"],
+    internal_return = metrics.return_ if metrics is not None else None
+    reported_return = internal_return if internal_return is not None else (
+        None if environment.evaluation_mode == "closed" else final["reward"]
+    )
+    return PolicyRun(policy.name, reset["info"]["episode_id"], reported_return,
                      max(0, final["info"]["step"] - 1 if final["terminated"] else final["info"]["step"]),
                      time.perf_counter() - started, final["terminated"], final["truncated"], metrics,
                      tuple(environment.trajectory()))
@@ -91,8 +98,40 @@ class _Collector:
 
 
 class SimpleReconciliationPolicy(_Collector):
+    """Check matching posted invoices using only collected public records."""
     name = "simple_reconciliation"
-    def findings(self): return audit(Books(self.tables, dict(self.manifest)))
+    def findings(self):
+        company_timezone = parse(self.manifest["period_start"]).tzinfo
+        posted = {
+            row["invoice_id"]: row
+            for row in self.tables["ledger"]
+            if row["account"] == "1200" and row["debit_minor"] > 0 and row["invoice_id"] is not None
+        }
+        groups = defaultdict(list)
+        for invoice in self.tables["invoices"]:
+            if invoice["invoice_id"] not in posted:
+                continue
+            key = (
+                invoice["entity_id"], invoice["currency"], invoice["total_minor"],
+                json.dumps(invoice["line_items"], sort_keys=True),
+                parse(invoice["issued_at"]).astimezone(company_timezone).date(),
+            )
+            groups[key].append(invoice)
+        findings = []
+        for invoices in groups.values():
+            ordered = sorted(invoices, key=lambda row: parse(row["issued_at"]))
+            for duplicate in ordered[1:]:
+                original = ordered[0]
+                ledger_row = posted[duplicate["invoice_id"]]
+                findings.append({
+                    "type": "duplicate_invoice",
+                    "affected_ids": sorted([original["invoice_id"], duplicate["invoice_id"]]),
+                    "claimed_amount_minor": ledger_row["debit_minor"],
+                    "currency": self.manifest["base_currency"],
+                    "evidence_ids": sorted([original["doc_id"], duplicate["doc_id"], ledger_row["id"]]),
+                    "explanation": "Счета с одинаковым содержимым проведены дважды.",
+                })
+        return findings[:30]
 
 
 class MarkEverythingPolicy(_Collector):
@@ -100,12 +139,20 @@ class MarkEverythingPolicy(_Collector):
     def findings(self):
         c, rows = self.manifest["base_currency"], self.tables
         ledger, invoices, payments = [r["id"] for r in rows["ledger"]], [r["id"] for r in rows["invoices"]], [r["id"] for r in rows["payments"]]
-        docs = [r.get("doc_id") for r in rows["invoices"] + rows["payments"]]
         def finding(kind, affected):
             return {"type": kind, "affected_ids": sorted(affected), "claimed_amount_minor": 1, "currency": c,
-                    "evidence_ids": sorted(set([x for x in [*docs[:2], *ledger[:3]] if x]))[:10], "explanation": "Public baseline accusation."}
+                    "evidence_ids": sorted(set(affected))[:10], "explanation": "Public baseline accusation."}
+        families = [
+            [finding("duplicate_invoice", invoices[i:i + 2]) for i in range(len(invoices) - 1)],
+            [finding("payment_allocation", [payment, invoices[0]]) for payment in payments] if invoices else [],
+            [finding("fx_date_or_rate", [row]) for row in ledger],
+            [finding("reporting_period", [row]) for row in ledger],
+        ]
         out = []
-        if len(invoices) >= 2: out.append(finding("duplicate_invoice", invoices[:2]))
-        if payments and invoices: out.append(finding("payment_allocation", [payments[0], invoices[0]]))
-        if ledger: out.extend([finding("fx_date_or_rate", [ledger[0]]), finding("reporting_period", [ledger[-1]])])
+        for index in range(max(map(len, families), default=0)):
+            for family in families:
+                if index < len(family):
+                    out.append(family[index])
+                    if len(out) == 30:
+                        return out
         return out
