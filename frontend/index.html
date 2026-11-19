@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Space Team Genesis</title>
+  <meta name="description" content="Воспроизводимая RL-среда для ИИ-аудитора: синтетические компании со скрытыми ошибками, доказательства в открытых записях и награда, которую нельзя обмануть.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    document.documentElement.classList.add("js");
+    (function (t) { if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); })(new URLSearchParams(location.search).get("theme"));
+  </script>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+
+<header class="binder">
+  <nav class="binder__inner" aria-label="Разделы">
+    <a class="brand" href="index.html">Space Team <span>Genesis</span></a>
+    <a class="tab" href="#how"><b>A</b> <span class="tab__label">Как устроено</span></a>
+    <a class="tab" href="#errors"><b>B</b> <span class="tab__label">Ошибки</span></a>
+    <a class="tab" href="#reward"><b>C</b> <span class="tab__label">Награда</span></a>
+    <a class="tab" href="#episodes"><b>D</b> <span class="tab__label">Эпизоды</span></a>
+    <a class="tab tab--wide" href="explorer.html"><span class="tab__label">Обозреватель</span></a>
+  </nav>
+</header>
+
+<main id="main" class="page">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div>
+      <h1 id="hero-title">Тренажёр для <span class="nowrap">ИИ-аудитора</span></h1>
+      <p class="lead">Мы генерируем бухгалтерию вымышленных компаний и прячем в ней настоящие ошибки: дубли счетов, неверные курсы, недораспределённые платежи, проводки не в своём периоде. Агент расследует записи и сдаёт выводы с доказательствами, а среда честно их оценивает.</p>
+      <div class="hero__actions">
+        <a class="btn" href="explorer.html">Открыть эпизод</a>
+        <a class="btn btn--ghost" href="#how">Как это устроено</a>
+      </div>
+    </div>
+
+    <figure class="workpaper" id="workpaper" aria-label="Пример: как аудитор находит ошибку курса в платеже на границе периода" style="margin:0">
+      <div class="workpaper__head">
+        <strong>Платёж PAY-NFYDYH</strong>
+        <span>Компания в Сан-Паулу, UTC−03:00, база EUR</span>
+      </div>
+      <div class="wp-grid">
+        <div class="wp-k">Сумма платежа</div>
+        <div class="wp-v wp-amount">4 886 574,78 KZT</div>
+
+        <div class="wp-k">Время в документе</div>
+        <div class="wp-v"><span class="mark mark--anim" style="--d:.4s">01.01.2026, 00:07 UTC</span></div>
+
+        <div class="wp-k">По времени компании</div>
+        <div class="wp-v">31.12.2025, 21:07 <span class="note reveal" style="--d:1s">это ещё декабрь: курс нужен на 31.12</span></div>
+
+        <div class="wp-k">Курс KZT→EUR на 31.12</div>
+        <div class="wp-v">0,001910175188</div>
+
+        <div class="wp-k">Должно быть в кассе</div>
+        <div class="wp-v wp-amount">9 334,21 EUR
+          <svg class="tick tick--ok draw" style="--d:1.6s" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>
+        </div>
+
+        <div class="wp-k">Проведено (курс 01.01)</div>
+        <div class="wp-v wp-amount">9 403,08 EUR
+          <svg class="tick draw" style="--d:2s" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5c4 3.6 9 8.4 14 13.5M18.5 5c-4.2 4.1-8.6 8.7-13 14"/></svg>
+        </div>
+
+        <div class="wp-k">Расхождение</div>
+        <div class="wp-v wp-amount">
+          <span class="circle-amount">68,87 EUR
+            <svg class="draw" style="--d:2.5s" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="50" cy="20" rx="48" ry="17"/></svg>
+          </span>
+          <span class="note reveal" style="--d:3s">fx_date_or_rate</span>
+        </div>
+      </div>
+      <figcaption class="workpaper__legend">
+        <span><span class="mark">жёлтым</span> ловушка</span>
+        <span><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg> сходится с политикой</span>
+        <span><svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5c4 3.6 9 8.4 14 13.5M18.5 5c-4.2 4.1-8.6 8.7-13 14"/></svg> расхождение</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="section__tab" aria-hidden="true">A</div>
+    <div class="section__body">
+      <h2 id="how-title">Как появляется один эпизод</h2>
+      <p class="lead">Эпизод — одна компания и один месяц. По одному и тому же seed всегда получаются побайтово одинаковые файлы.</p>
+      <ol class="steps">
+        <li>
+          <h3>Скрытая история</h3>
+          <p>Клиенты, курсы на каждый день, счета, оплаты и расходы. Всё согласовано, книга сходится.</p>
+        </li>
+        <li>
+          <h3>Законные странности</h3>
+          <p>Повторы сумм, переплаты с возвратом, разбитые платежи, документы у края периода в чужом часовом поясе.</p>
+        </li>
+        <li>
+          <h3>Ошибки как изменения</h3>
+          <p>Дубль, недораспределение, курс не той даты, проводка не в том периоде. Каждое изменение записано.</p>
+        </li>
+        <li>
+          <h3>Две книги одним кодом</h3>
+          <p>Чистая и опубликованная. Сумма каждой ошибки — их разница, а не случайная подозрительная строка.</p>
+        </li>
+        <li>
+          <h3>Открыто и закрыто</h3>
+          <p>Агент видит записи только через пять действий. Эталон и seed остаются у оценщика.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="errors" aria-labelledby="errors-title">
+    <div class="section__tab" aria-hidden="true">B</div>
+    <div class="section__body">
+      <h2 id="errors-title">Что ищет агент</h2>
+      <p class="lead">Четыре типа ошибок, каждый настраивается отдельно. Примеры взяты из одного эпизода открытого набора, суммы настоящие.</p>
+      <div class="findings">
+        <article class="finding">
+          <h3>Дубль счёта <span class="amount">7 090,99 EUR</span></h3>
+          <p>Тот же клиент, те же позиции и сумма, тот же день, но новый номер, и оба счёта проведены.</p>
+          <p class="trap">Ловушка: один документ напечатан в UTC, другой в местном времени. Кто был первым, видно только по моменту времени.</p>
+        </article>
+        <article class="finding">
+          <h3>Недораспределённый платёж <span class="amount">4 194,32 EUR</span></h3>
+          <p>Платёж ссылается на счёт и не превышает его остатка, но погашено лишь 55%. Остальное лежит на счёте нераспределённых поступлений.</p>
+          <p class="trap">Ловушка: переплата туда же попадает законно. Отличить можно, только проверив остаток счёта.</p>
+        </article>
+        <article class="finding">
+          <h3>Курс не той даты <span class="amount">68,87 EUR</span></h3>
+          <p>Платёж в тенге пересчитан по курсу 1 января, хотя по времени компании пришёл 31 декабря.</p>
+          <p class="trap">Ловушка: на этом же платеже ещё и недораспределение. Две ошибки на одной записи.</p>
+        </article>
+        <article class="finding">
+          <h3>Не тот период <span class="amount">1 225,10 EUR</span></h3>
+          <p>Счёт от 1 января проведён задним числом в декабре.</p>
+          <p class="trap">Ловушка: он напечатан со смещением −10:00 и выглядит как 31 декабря.</p>
+        </article>
+      </div>
+
+      <p class="subhead">А это не ошибки</p>
+      <p class="muted">Они лежат в тех же книгах, чтобы правило «одинаковая сумма значит дубль» не срабатывало.</p>
+      <ul class="clean-list">
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Четыре еженедельных счёта на одинаковую сумму</li>
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Переплата и её возврат: −101,27 EUR</li>
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Один счёт, оплаченный двумя платежами</li>
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Один платёж сразу за два счёта</li>
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Счёт прошлого месяца, оплаченный в этом</li>
+        <li><svg class="tick tick--ok" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13c2 1.5 3.5 3.2 5 5.5C11.5 12 15 7.5 20.5 4"/></svg>Платёж через пять минут после конца месяца, верно не проведённый</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="reward" aria-labelledby="reward-title">
+    <div class="section__tab" aria-hidden="true">C</div>
+    <div class="section__body">
+      <h2 id="reward-title">Награду нельзя выпросить</h2>
+      <p class="lead">Вывод засчитывается, только если совпадают тип, точный набор записей, сумма до цента, валюта и полный набор доказательств. Текст объяснения на оценку не влияет.</p>
+      <div class="formula" aria-label="награда равна clip от 2 F1 минус 1 минус 0,002 на число шагов, от минус 1 до 1">награда = clip(2·F1 − 1 − 0,002·шаги, −1, 1)</div>
+
+      <div class="reward-grid">
+        <form class="calc" id="calc" aria-labelledby="calc-title" onsubmit="return false">
+          <h3 id="calc-title">Посчитайте сами</h3>
+          <p class="small muted" style="margin:0">Сдвиньте ползунки и посмотрите, как меняется награда.</p>
+          <label>Найдено верно <output id="o-tp">4</output>
+            <input type="range" id="i-tp" min="0" max="12" value="4"></label>
+          <label>Ложных выводов <output id="o-fp">0</output>
+            <input type="range" id="i-fp" min="0" max="30" value="0"></label>
+          <label>Пропущено <output id="o-fn">1</output>
+            <input type="range" id="i-fn" min="0" max="12" value="1"></label>
+          <label>Шагов исследования <output id="o-steps">20</output>
+            <input type="range" id="i-steps" min="0" max="99" value="20"></label>
+          <div class="scale" aria-live="polite">
+            <div class="scale__bar"><div class="scale__pin" id="pin"></div></div>
+            <div class="scale__labels"><span>−1</span><span>0</span><span>+1</span></div>
+            <div class="scale__value" id="reward-value">0,738</div>
+            <div class="calc__metrics"><span id="m-p"></span><span id="m-r"></span><span id="m-f1"></span></div>
+          </div>
+        </form>
+
+        <div>
+          <h3 style="margin-bottom:10px">Стратегии на настоящем эпизоде</h3>
+          <div class="table-wrap">
+            <table id="strategies">
+              <thead><tr><th>Стратегия</th><th class="num">Шаги</th><th class="num">F1</th><th class="num">Награда</th></tr></thead>
+              <tbody><tr><td colspan="4" class="muted">Загрузка…</td></tr></tbody>
+            </table>
+          </div>
+          <p class="small muted" style="margin-top:10px">Посчитано настоящим оценщиком на эпизоде dev, seed 2013, в котором 5 ошибок.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="episodes" aria-labelledby="episodes-title">
+    <div class="section__tab" aria-hidden="true">D</div>
+    <div class="section__body">
+      <h2 id="episodes-title">Двадцать открытых эпизодов</h2>
+      <p class="lead">10 train и 10 dev. Каждый набор подобран так, чтобы в нём были чистые компании, все типы ошибок, оба сценария переплетённых ошибок и все размеры.</p>
+      <ul class="stats" id="stats"></ul>
+      <div class="table-wrap">
+        <table id="episode-table">
+          <thead><tr><th>Набор</th><th>Что внутри</th><th>Компания</th><th class="num">Проводок</th><th>Ошибки</th></tr></thead>
+          <tbody><tr><td colspan="5" class="muted">Загрузка…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>
+      <h3>Запустить проверку</h3>
+      <pre>PYTHONPATH=src python -m unittest discover -s tests -t .
+python -m auditgym.dataset check</pre>
+    </div>
+    <div>
+      <h3>Честные ограничения</h3>
+      <p class="small muted">Модель учёта упрощена: только дебиторка, без налогов и переоценки. Генератор открыт, поэтому закрытые seed должны храниться у оценщика. Это учебная задача, а не аудиторское заключение.</p>
+    </div>
+    <div>
+      <h3>Space Team</h3>
+      <p class="small muted">Дарий и Арлан. Хакатон, трек FinTech, ноябрь 2026. Все компании, люди и деньги вымышлены.</p>
+    </div>
+  </footer>
+</main>
+
+<script src="data/index.js"></script>
+<script src="common.js"></script>
+<script src="landing.js"></script>
+</body>
+</html>
