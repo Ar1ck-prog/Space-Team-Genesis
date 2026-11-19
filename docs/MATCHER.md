@@ -18,10 +18,11 @@ ev.result()          # полный приватный результат: P, R,
 - Объект ровно с ключами `episode_id` и `findings`; `episode_id` совпадает с текущим; `findings` — массив из 0–30 элементов.
 - Каждый вывод ровно с полями `type, affected_ids, claimed_amount_minor, currency, evidence_ids, explanation`.
 - `type` — один из четырёх; `claimed_amount_minor` — целое в безопасном диапазоне JS (bool, дробь и строка не подходят); `currency` — код из `manifest.currency_decimals`, регистр точный; `explanation` — 1–1000 кодовых точек Unicode.
-- ID канонические: ASCII, 1–128 символов, без пробелов, префикс `ledger:`, `invoice:`, `payment:`, `doc:` (в локальной части нет `:`) или `fx:<YYYY-MM-DD>:<SRC>:<TGT>` с настоящей датой и кодами из заглавных букв. Регистр не нормализуется.
-- `affected_ids`: не пусто, без `doc:*`, без повторов; форма по типу: `duplicate_invoice` — не меньше двух `invoice:*`; `payment_allocation` — ровно один `payment:*` и хотя бы один `invoice:*`; `fx_date_or_rate` и `reporting_period` — хотя бы один `ledger:*`.
+- ID канонические: ASCII, 1–128 символов, без пробелов, префикс `ledger:`, `invoice:`, `payment:`, `doc:` (в локальной части нет `:`) или ровно форма `fx:<YYYY-MM-DD>:<SRC>:<TGT>` с кодами из заглавных букв. Существование даты не проверяется: такой ID корректен по структуре и просто ничему не соответствует. Регистр не нормализуется.
+- `affected_ids`: не пусто, без `doc:*`, без повторов; форма по типу: `duplicate_invoice` — не меньше двух ID, все `invoice:*`; `payment_allocation` — ровно один `payment:*` и хотя бы один `invoice:*`; `fx_date_or_rate` и `reporting_period` — хотя бы один `ledger:*`.
 - `evidence_ids`: 1–10 ID любого пространства, без повторов.
 - Канонизация массивов: сортировка. Повтор — ошибка структуры, поэтому канонизация ничего не склеивает.
+- **Открытый вопрос к среде.** Валидатор среды (`src/space_team_genesis/environment.py`, PR #10) требует, чтобы массивы уже пришли отсортированными, и иначе возвращает `invalid_submission`; оценщик несортированный массив сортирует сам. В связке среда проверяет первой, поэтому сейчас фактически действует более строгое правило. Контракт допускает оба прочтения, нужно выбрать одно (вектор `affected_unsorted`).
 
 ## Сопоставление
 
@@ -119,7 +120,8 @@ ev.result()          # полный приватный результат: P, R,
 | `currency_lowercase` | currency codes are exact | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `explanation_empty` | 1..1000 code points | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `explanation_1001` | 1..1000 code points | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
-| `fx_bad_date` | fx id date must be valid | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
+| `duplicate_with_ledger_id` | duplicate_invoice affected_ids are invoice ids only | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
+| `fx_short_date` | fx id must have the form fx:<YYYY-MM-DD>:<SRC>:<TGT> | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `fx_lowercase_currency` | fx id currencies are upper-case | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `id_with_space` | no whitespace | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `id_non_ascii` | ASCII only | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
@@ -127,4 +129,5 @@ ev.result()          # полный приватный результат: P, R,
 | `id_colon_in_local` | the local part has no colon | 7 | неверна | 0 | 0 | 3 | 0.000 | -1.000 |
 | `thirty_findings` | 30 findings are allowed | 0 | верна | 1 | 29 | 2 | 0.061 | -0.879 |
 | `explanation_1000_code_points` | 1000 code points (non-BMP) are allowed | 0 | верна | 1 | 0 | 2 | 0.500 | +0.000 |
+| `fx_nonexistent_date` | a well-formed fx id for a non-existent date is valid structure, it just matches nothing | 0 | верна | 0 | 1 | 3 | 0.000 | -1.000 |
 | `id_128_chars` | exactly 128 characters is allowed (here a wrong id, so FP) | 0 | верна | 0 | 1 | 3 | 0.000 | -1.000 |

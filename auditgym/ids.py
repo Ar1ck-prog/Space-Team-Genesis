@@ -8,13 +8,12 @@ ASCII, 1..128 characters, no whitespace, case-sensitive (never normalized).
 from __future__ import annotations
 
 import re
-from datetime import date
 
 NAMESPACES = ("ledger", "invoice", "payment", "doc", "fx")
 MAX_ID_LEN = 128
 
 _SIMPLE = re.compile(r"^(ledger|invoice|payment|doc):[\x21-\x39\x3b-\x7e]+$")  # printable ASCII except ':'
-_FX = re.compile(r"^fx:(\d{4}-\d{2}-\d{2}):([A-Z]{3}):([A-Z]{3})$")
+_FX = re.compile(r"^fx:\d{4}-\d{2}-\d{2}:[A-Z]{3}:[A-Z]{3}$")
 
 
 def namespace(id_: str) -> str | None:
@@ -24,12 +23,9 @@ def namespace(id_: str) -> str | None:
     m = _SIMPLE.match(id_)
     if m:
         return m.group(1)
-    m = _FX.match(id_)
-    if m:
-        try:
-            date.fromisoformat(m.group(1))
-        except ValueError:
-            return None
+    # Only the form fx:<YYYY-MM-DD>:<SRC>:<TGT> is structural (same rule as the environment's
+    # validator); an fx id for a date that does not exist is well-formed and simply matches nothing.
+    if _FX.match(id_):
         return "fx"
     return None
 

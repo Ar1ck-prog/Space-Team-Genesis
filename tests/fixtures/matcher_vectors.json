@@ -983,8 +983,8 @@
           {
             "type": "duplicate_invoice",
             "affected_ids": [
-              "invoice:inv-a",
-              "invoice:INV-B"
+              "invoice:INV-B",
+              "invoice:inv-a"
             ],
             "claimed_amount_minor": 150000,
             "currency": "KZT",
@@ -2767,8 +2767,43 @@
       }
     },
     {
-      "name": "fx_bad_date",
-      "why": "fx id date must be valid",
+      "name": "duplicate_with_ledger_id",
+      "why": "duplicate_invoice affected_ids are invoice ids only",
+      "truth": "T",
+      "inspection_steps": 7,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "duplicate_invoice",
+            "affected_ids": [
+              "invoice:INV-A",
+              "invoice:INV-B",
+              "ledger:L-1"
+            ],
+            "claimed_amount_minor": 150000,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-A",
+              "doc:DOC-B",
+              "ledger:L-1"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": false,
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
+      }
+    },
+    {
+      "name": "fx_short_date",
+      "why": "fx id must have the form fx:<YYYY-MM-DD>:<SRC>:<TGT>",
       "truth": "T",
       "inspection_steps": 7,
       "submission": {
@@ -2784,7 +2819,7 @@
             "currency": "KZT",
             "evidence_ids": [
               "doc:DOC-C",
-              "fx:2026-13-02:USD:KZT",
+              "fx:2026-11-2:USD:KZT",
               "ledger:L-7"
             ],
             "explanation": "Supported by the listed records."
@@ -3471,6 +3506,40 @@
         "fn": 2,
         "f1": 0.5,
         "reward": 0.0
+      }
+    },
+    {
+      "name": "fx_nonexistent_date",
+      "why": "a well-formed fx id for a non-existent date is valid structure, it just matches nothing",
+      "truth": "T",
+      "inspection_steps": 0,
+      "submission": {
+        "episode_id": "ep_VECTORTEST000000000",
+        "findings": [
+          {
+            "type": "fx_date_or_rate",
+            "affected_ids": [
+              "ledger:L-7",
+              "ledger:L-8"
+            ],
+            "claimed_amount_minor": 2056,
+            "currency": "KZT",
+            "evidence_ids": [
+              "doc:DOC-C",
+              "fx:2026-13-02:USD:KZT",
+              "ledger:L-7"
+            ],
+            "explanation": "Supported by the listed records."
+          }
+        ]
+      },
+      "expect": {
+        "valid": true,
+        "tp": 0,
+        "fp": 1,
+        "fn": 3,
+        "f1": 0.0,
+        "reward": -1.0
       }
     },
     {

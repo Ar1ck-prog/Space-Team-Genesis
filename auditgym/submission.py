@@ -46,7 +46,7 @@ def _ids(value, field: str, allowed: tuple, lo: int, hi: int | None) -> list:
 def _affected_shape(type_: str, ids: list) -> None:
     ns = [i.split(":", 1)[0] for i in ids]
     ok = {
-        "duplicate_invoice": ns.count("invoice") >= 2,
+        "duplicate_invoice": ns.count("invoice") >= 2 and set(ns) == {"invoice"},
         "payment_allocation": ns.count("payment") == 1 and ns.count("invoice") >= 1,
         "fx_date_or_rate": ns.count("ledger") >= 1,
         "reporting_period": ns.count("ledger") >= 1,

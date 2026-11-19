@@ -239,10 +239,10 @@ class TestUnits(unittest.TestCase):
 
     def test_id_namespaces(self):
         good = {"ledger:L-1": "ledger", "invoice:INV-1": "invoice", "payment:PAY-1": "payment", "doc:DOC-1": "doc",
-                "fx:2026-11-02:USD:KZT": "fx"}
+                "fx:2026-11-02:USD:KZT": "fx", "fx:2026-02-30:USD:KZT": "fx"}
         for i, ns in good.items():
             self.assertEqual(namespace(i), ns)
-        for bad in ("ledger:", "ledger:a:b", "LEDGER:L-1", "fx:2026-02-30:USD:KZT", "fx:2026-11-02:USD", "x:y",
+        for bad in ("ledger:", "ledger:a:b", "LEDGER:L-1", "fx:2026-11-2:USD:KZT", "fx:2026-11-02:USD", "x:y",
                     "invoice:a b", "invoice:" + "A" * 121, 5, None, "doc:DOC-é"):
             self.assertIsNone(namespace(bad), bad)
 
