@@ -1,7 +1,7 @@
 """Contract-first, in-memory implementation of the public reset/step interface.
 
-The generator and matcher are injected deliberately: they are separate work items and
-must not be replaced by hidden fallback data or scoring rules in this module.
+The generator and matcher are injected deliberately. Integrated offline wiring lives
+in space_team_genesis.integration; this module keeps public transition semantics.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ class SubmissionEvaluator(Protocol):
 
 
 class EpisodeGenerator(Protocol):
-    """Trusted integration point implemented by the synthetic-company generator (#2)."""
+    """Trusted integration point implemented by the synthetic-company generator."""
 
     def generate(self, seed: int, config: Mapping[str, Any]) -> "EpisodeData":
         """Create one episode's public data; private artifacts stay outside this API."""
@@ -58,7 +58,7 @@ class EpisodeData:
     """Public generator output consumed by the environment.
 
     No truth, provenance, seed, filesystem path or closed evaluator setting belongs
-    here. The future generator owns construction and validation of these records.
+    here. The generator owns construction and validation of these records.
     """
 
     episode_id: str
@@ -211,7 +211,9 @@ class AuditEnvironment:
                 # Structural submit errors are terminal. Matcher details stay outside
                 # this process; open mode exposes only the contractually fixed -1.
                 self._terminated = True
-                reward: float | int = -1 if self.evaluation_mode == "open" else 0
+                score_invalid = getattr(self.evaluator, "score_invalid_submission", None)
+                internal_reward = score_invalid(action.get("findings"), self._step - 1).reward if score_invalid else -1
+                reward: float | int = internal_reward if self.evaluation_mode == "open" else 0
                 result = self._result(self._error_observation(validation_error), reward=reward, terminated=True)
             else:
                 result = self._result(self._error_observation(validation_error), reward=0)
@@ -223,7 +225,7 @@ class AuditEnvironment:
         # A valid submit takes priority over the budget. Every other 100th step
         # is truncated, including an error action.
         if not result["terminated"] and (self._step >= self.max_steps or self._timed_out()):
-            result = self._truncate()
+            result = self._truncate("steps" if self._step >= self.max_steps else "time")
         self._last_observation = result["observation"]
         self._record_trajectory(action, result)
         return copy.deepcopy(result)
@@ -231,11 +233,14 @@ class AuditEnvironment:
     def _timed_out(self) -> bool:
         return self._started_at is not None and self.clock() - self._started_at >= self.time_limit_seconds
 
-    def _truncate(self) -> Mapping[str, Any]:
+    def _truncate(self, reason: str = "time") -> Mapping[str, Any]:
         self._truncated = True
+        score_truncation = getattr(self.evaluator, "score_truncation", None)
+        internal_reward = score_truncation(self._step, reason).reward if score_truncation else 0
+        reward: float | int = internal_reward if self.evaluation_mode == "open" else 0
         observation = {"kind": "truncated", "result": None, "remaining_steps": 0}
         self._last_observation = observation
-        return self._result(observation, reward=0, truncated=True)
+        return self._result(observation, reward=reward, truncated=True)
 
     def _result(
         self,
