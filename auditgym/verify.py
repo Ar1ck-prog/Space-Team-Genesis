@@ -1,7 +1,9 @@
 """Independent data checks for one episode (case section 10, 'Данные и эталон').
 
 Computed from public records + truth/provenance, without the generator's internal state:
-  schema      - fields, types, canonical id namespaces, ISO-8601 offsets, explicit nulls, counts
+  schema      - fields, types, canonical id namespaces, ISO-8601 offsets, explicit nulls, counts,
+                known timezone and a period of exactly one calendar month in its offset
+  policy      - policy.json has exactly the contract fields and values; accounts cover the ledger
   balance     - every posting group balances in the published ledger and in the clean ledger
   clean_books - accounting equalities hold before errors: the auditor finds nothing on the clean ledger
   evidence    - every evidence id is public; each declared amount is recomputed from its evidence set alone
@@ -15,10 +17,30 @@ import json
 import re
 from collections import defaultdict
 
+import calendar
+
 from .books import Books, audit
 from .config import ISSUE_TYPES
-from .money import EXPONENTS, JS_SAFE_INT, convert_minor
-from .timeutil import parse
+from .money import EXPONENTS, JS_SAFE_INT, ROUNDING_RULE, convert_minor
+from .timeutil import ZONES, offset_tz, parse
+
+# Contract 1.1.0, section 10.2: every policy_summary field is required and has a fixed value.
+POLICY_EXPECTED = {
+    "fx_rate_date": "document_timestamp_local_date",
+    "period_boundary": "inclusive_start_and_end",
+    "rounding": ROUNDING_RULE,
+    "fx_rate_direction": "target_per_source",
+    "ledger_currency": "base_currency",
+    "invoice_posting": "debit_1200_credit_4000_at_issued_at_local_date_rate",
+    "payment_posting": "debit_1000_at_payment_rate_credit_1200_per_allocation_at_invoice_rate_"
+                       "excess_to_2400_difference_to_7900",
+    "allocation_order": "invoice_refs_in_order_up_to_outstanding",
+    "refunds": "negative_amount_debit_2400_credit_1000",
+}
+POLICY_KEYS = ["fx_rate_date", "period_boundary", "rounding", "fx_rate_direction", "ledger_currency", "accounts",
+               "invoice_posting", "payment_posting", "allocation_order", "refunds"]
+REQUIRED_ACCOUNTS = {"1000", "1200", "2400", "4000", "7900"}
+ZONE_OFFSETS = dict(ZONES)
 
 INV_KEYS = ["doc_id", "invoice_id", "entity_id", "issued_at", "due_at", "currency", "total_minor", "line_items"]
 PAY_KEYS = ["doc_id", "payment_id", "timestamp", "currency", "amount_minor", "invoice_refs"]
@@ -55,6 +77,47 @@ def _int(v) -> bool:
     return isinstance(v, int) and not isinstance(v, bool) and abs(v) <= JS_SAFE_INT
 
 
+def _period_problems(m: dict) -> list:
+    """Timezone is a known fixed-offset zone and the period is exactly one calendar month in it."""
+    errs = []
+    offset = ZONE_OFFSETS.get(m["timezone"])
+    if offset is None:
+        return [f"manifest.timezone {m['timezone']!r} is not a supported zone"]
+    start, end = parse(m["period_start"]), parse(m["period_end"])
+    if m["period_start"][-6:] != offset or m["period_end"][-6:] != offset:
+        errs.append("period bounds must use the offset of manifest.timezone")
+    local_start, local_end = start.astimezone(offset_tz(offset)), end.astimezone(offset_tz(offset))
+    last_day = calendar.monthrange(local_start.year, local_start.month)[1]
+    if (local_start.day, local_start.hour, local_start.minute, local_start.second) != (1, 0, 0, 0):
+        errs.append("period_start must be 00:00:00 on the first day of the month")
+    if (local_end.year, local_end.month, local_end.day, local_end.hour, local_end.minute, local_end.second) != \
+            (local_start.year, local_start.month, last_day, 23, 59, 59):
+        errs.append("period_end must be 23:59:59 on the last day of the same month (inclusive)")
+    return errs
+
+
+def check_policy(ep) -> list:
+    """policy.json == policy_summary: exact field set and values (contract 1.1.0, 10.2)."""
+    p = ep.policy
+    errs = []
+    if not isinstance(p, dict) or sorted(p) != sorted(POLICY_KEYS):
+        return ["policy fields differ from the contract"]
+    for key, value in POLICY_EXPECTED.items():
+        if p[key] != value:
+            errs.append(f"policy.{key} has an unsupported value")
+    accounts = p["accounts"]
+    if not isinstance(accounts, dict) or not all(isinstance(k, str) and k.isdigit() and isinstance(v, str) and v
+                                                  for k, v in accounts.items()):
+        errs.append("policy.accounts must map account codes to names")
+    elif not REQUIRED_ACCOUNTS <= set(accounts):
+        errs.append("policy.accounts lacks a required account")
+    else:
+        used = {r["account"] for r in ep.tables["ledger"]}
+        if not used <= set(accounts):
+            errs.append("ledger uses an account that policy.accounts does not define")
+    return errs
+
+
 def check_schema(ep) -> list:
     errs = []
     m = ep.manifest
@@ -69,6 +132,10 @@ def check_schema(ep) -> list:
         errs.append("document_count mismatch")
     if not (TS_RE.match(m["period_start"]) and TS_RE.match(m["period_end"])):
         errs.append("period bounds must be ISO-8601 with offset")
+    else:
+        errs += _period_problems(m)
+    if m.get("rounding_rule") != ROUNDING_RULE:
+        errs.append("manifest rounding_rule differs from the contract")
     ccys = set(m["currency_decimals"])
     for r in ep.tables["ledger"]:
         if list(r) != LEDGER_KEYS:
@@ -280,6 +347,7 @@ def check_no_leak(ep) -> list:
 
 CHECKS = {
     "schema": check_schema,
+    "policy": check_policy,
     "balance": check_balance,
     "clean_books": check_clean_books,
     "evidence": check_evidence,
