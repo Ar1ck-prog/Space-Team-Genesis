@@ -1,3 +1,4 @@
 # Episode files are compared byte-for-byte with regeneration (LF, UTF-8): never convert line endings.
 episodes/** text eol=lf
 datasets/** text eol=lf
+frontend/data/** text eol=lf

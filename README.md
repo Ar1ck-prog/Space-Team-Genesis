@@ -13,7 +13,10 @@ make check     # тесты, проверка 10 train + 10 dev, интегра�
 make demo      # один dev-эпизод и публичный outputs/trajectories.jsonl
 make report    # сводка четырёх политик на train и dev
 make serve     # HTTP API на 127.0.0.1:8000
+make site      # сайт + API на 127.0.0.1:8000 (режим open, для показа)
 ```
+
+**Сайт** (`frontend/`): лендинг, песочница, где эпизод проходят вручную или браузерным агентом через тот же HTTP API, и обозреватель открытых эпизодов. После `make site` откройте http://127.0.0.1:8000/. Подробнее: [frontend/README.md](frontend/README.md).
 
 Без `make`: `PYTHONPATH=src:. python3 -m space_team_genesis.cli check`. Остальные команды доступны через тот же модуль (`run`, `report`, `serve`).
 

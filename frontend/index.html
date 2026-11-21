@@ -23,7 +23,9 @@
     <a class="tab" href="#how"><b>A</b> <span class="tab__label">Как устроено</span></a>
     <a class="tab" href="#errors"><b>B</b> <span class="tab__label">Ошибки</span></a>
     <a class="tab" href="#reward"><b>C</b> <span class="tab__label">Награда</span></a>
-    <a class="tab" href="#episodes"><b>D</b> <span class="tab__label">Эпизоды</span></a>
+    <a class="tab" href="#results"><b>D</b> <span class="tab__label">Результаты</span></a>
+    <a class="tab" href="#episodes"><b>E</b> <span class="tab__label">Эпизоды</span></a>
+    <a class="tab tab--wide" href="play.html"><span class="tab__label">Песочница</span></a>
     <a class="tab tab--wide" href="explorer.html"><span class="tab__label">Обозреватель</span></a>
   </nav>
 </header>
@@ -35,8 +37,8 @@
       <h1 id="hero-title">Тренажёр для <span class="nowrap">ИИ-аудитора</span></h1>
       <p class="lead">Мы генерируем бухгалтерию вымышленных компаний и прячем в ней настоящие ошибки: дубли счетов, неверные курсы, недораспределённые платежи, проводки не в своём периоде. Агент расследует записи и сдаёт выводы с доказательствами, а среда честно их оценивает.</p>
       <div class="hero__actions">
-        <a class="btn" href="explorer.html">Открыть эпизод</a>
-        <a class="btn btn--ghost" href="#how">Как это устроено</a>
+        <a class="btn" href="play.html">Попробовать как агент</a>
+        <a class="btn btn--ghost" href="explorer.html">Открыть эпизод</a>
       </div>
     </div>
 
@@ -196,8 +198,24 @@
     </div>
   </section>
 
-  <section class="section" id="episodes" aria-labelledby="episodes-title">
+  <section class="section" id="results" aria-labelledby="results-title">
     <div class="section__tab" aria-hidden="true">D</div>
+    <div class="section__body">
+      <h2 id="results-title">Кто сколько набирает</h2>
+      <p class="lead">Средняя награда на всех 20 открытых эпизодах. Слабые стратегии проваливаются, атака не проходит, а внимательный аудитор, который видит только открытые записи, доходит почти до предела.</p>
+      <div class="ladder" id="ladder" role="list"></div>
+      <div class="table-wrap" style="margin-top:22px">
+        <table id="policy-table">
+          <thead><tr><th>Стратегия</th><th class="num">Точность</th><th class="num">Полнота</th><th class="num">F1</th><th class="num">Ложных выводов</th><th class="num">Шагов</th><th class="num">Награда</th></tr></thead>
+          <tbody><tr><td colspan="7" class="muted">Загрузка…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="small muted" style="margin-top:10px">Политики запускались через публичный reset/step, оценивал настоящий оценщик. В четырёх чистых эпизодах точность и полнота по контракту равны 0, а F1 равен 1, поэтому даже у oracle средние точность и полнота 0,8. Те же числа даёт <code>make report</code>.</p>
+    </div>
+  </section>
+
+  <section class="section" id="episodes" aria-labelledby="episodes-title">
+    <div class="section__tab" aria-hidden="true">E</div>
     <div class="section__body">
       <h2 id="episodes-title">Двадцать открытых эпизодов</h2>
       <p class="lead">10 train и 10 dev. Каждый набор подобран так, чтобы в нём были чистые компании, все типы ошибок, оба сценария переплетённых ошибок и все размеры.</p>
@@ -211,11 +229,47 @@
     </div>
   </section>
 
+  <section class="section" id="connect" aria-labelledby="connect-title">
+    <div class="section__tab" aria-hidden="true">F</div>
+    <div class="section__body">
+      <h2 id="connect-title">Подключите своего агента</h2>
+      <p class="lead">Агенту нужен только HTTP: создать эпизод, делать шаги и отправить выводы. Seed и режим оценки выбирает сервер, эталон живёт в отдельном процессе.</p>
+      <ol class="connect">
+        <li>
+          <h3>Создать эпизод</h3>
+          <pre>POST /api/v1/episodes
+{"dataset_profile": "dev", "company_size": "small"}</pre>
+          <p class="small muted">В ответе: первое наблюдение, <code>episode_id</code> и токен эпизода.</p>
+        </li>
+        <li>
+          <h3>Исследовать записи</h3>
+          <pre>POST /api/v1/episodes/{id}/steps
+Authorization: Bearer &lt;token&gt;
+{"kind": "list_records", "table": "ledger",
+ "cursor": null, "limit": 50}</pre>
+          <p class="small muted">Ещё четыре действия: <code>get_record</code>, <code>get_document</code>, <code>calculator</code>, <code>submit</code>.</p>
+        </li>
+        <li>
+          <h3>Сдать выводы</h3>
+          <pre>{"kind": "submit", "findings": {
+  "episode_id": "…", "findings": [{"type": "fx_date_or_rate",
+  "affected_ids": ["ledger:L-…"], "claimed_amount_minor": 6887,
+  "currency": "EUR", "evidence_ids": ["doc:…", "ledger:L-…",
+  "fx:2025-12-31:KZT:EUR"], "explanation": "…"}]}}</pre>
+          <p class="small muted">Эпизод завершается; траектория доступна по <code>GET /api/v1/episodes/{id}/trajectory</code>.</p>
+        </li>
+      </ol>
+      <p style="margin-top:20px"><a class="btn" href="play.html">Открыть песочницу</a></p>
+    </div>
+  </section>
+
   <footer class="footer">
     <div>
-      <h3>Запустить проверку</h3>
-      <pre>PYTHONPATH=src python -m unittest discover -s tests -t .
-python -m auditgym.dataset check</pre>
+      <h3>Запустить</h3>
+      <pre>make check   # 100+ тестов, 20 эпизодов, прогон
+make site    # сайт и API на :8000
+make report  # политики на 20 эпизодах
+docker build -t space-team-genesis .</pre>
     </div>
     <div>
       <h3>Честные ограничения</h3>

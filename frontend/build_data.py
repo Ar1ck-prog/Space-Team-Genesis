@@ -19,11 +19,76 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
+from auditgym.books import Books, audit  # noqa: E402
 from auditgym.dataset import load_manifest  # noqa: E402
+from auditgym.environment_adapter import environment_from_public_episode  # noqa: E402
 from auditgym.episode_io import load_episode  # noqa: E402
 from auditgym.evaluator import Evaluator  # noqa: E402
 from auditgym.generator import generate  # noqa: E402
+from auditgym.policies import MarkEverythingPolicy, RandomExplorer, SimpleReconciliationPolicy, run_policy  # noqa: E402
+from space_team_genesis.environment import EvaluationResult  # noqa: E402
+
+
+class _EvaluatorPort:
+    """In-process adapter: the environment's evaluator protocol on top of auditgym.Evaluator.
+    The official runtime runs the evaluator in a separate process; for building static site
+    data the same scoring code runs in-process, which gives identical numbers much faster."""
+
+    def __init__(self, evaluator):
+        self.evaluator = evaluator
+
+    def evaluate(self, findings, inspection_steps):
+        return EvaluationResult(reward=self.evaluator.score_submission(findings, inspection_steps).reward)
+
+    def score_invalid_submission(self, findings, inspection_steps):
+        return EvaluationResult(reward=self.evaluator.score_submission(findings, inspection_steps).reward)
+
+    def score_truncation(self, inspection_steps, reason):
+        return EvaluationResult(reward=self.evaluator.score_truncation(inspection_steps, reason).reward)
+
+
+POLICIES = [
+    ("random", "Случайный исследователь", "8 случайных действий, затем случайные выводы", lambda: RandomExplorer(7)),
+    ("mark_all", "«Пометить всё»", "атака: до 30 обвинений по всем записям подряд", MarkEverythingPolicy),
+    ("reconcile", "Простая сверка", "ищет только дубли счетов", SimpleReconciliationPolicy),
+]
+
+
+def policy_results(specs: list) -> list:
+    """Mean metrics over the open episodes for the baselines, a full public-data auditor and the oracle."""
+    rows = {key: [] for key, *_ in POLICIES}
+    rows["careful"], rows["oracle"] = [], []
+    for e in specs:
+        ep = generate(e["seed"], e["config"])
+        for key, _, _, make in POLICIES:
+            port = _EvaluatorPort(Evaluator.from_episode(ep, "open"))
+            run = run_policy(environment_from_public_episode(ep, port), make())
+            r = port.evaluator.result()
+            rows[key].append((r.precision, r.recall, r.f1, r.reward, r.fp, run.inspection_steps))
+        # Careful auditor = the browser agent: reads every table page by page, then applies the policy.
+        steps = sum(math.ceil(n / 50) for n in ep.manifest["record_counts"].values())
+        r = Evaluator.from_episode(ep, "open").score_submission(
+            {"episode_id": ep.episode_id, "findings": audit(Books(ep.tables, ep.manifest))}, steps)
+        rows["careful"].append((r.precision, r.recall, r.f1, r.reward, r.fp, steps))
+        oracle = [{"type": t["type"], "affected_ids": t["affected_ids"], "claimed_amount_minor": t["expected_amount_minor"],
+                   "currency": t["currency"], "evidence_ids": t["evidence_sets"][0], "explanation": "oracle"}
+                  for t in ep.truth["issues"]]
+        r = Evaluator.from_episode(ep, "open").score_submission({"episode_id": ep.episode_id, "findings": oracle}, 0)
+        rows["oracle"].append((r.precision, r.recall, r.f1, r.reward, r.fp, 0))
+    names = {key: (name, note) for key, name, note, _ in POLICIES}
+    names["careful"] = ("Внимательный аудитор", "наш агент по открытым данным, все четыре типа")
+    names["oracle"] = ("Oracle", "только внутри оценщика: предел награды")
+    out = []
+    for key in ("random", "mark_all", "reconcile", "careful", "oracle"):
+        vals = rows[key]
+        n = len(vals)
+        mean = lambda i: round(sum(v[i] for v in vals) / n, 4)  # noqa: E731
+        out.append({"key": key, "name": names[key][0], "note": names[key][1], "episodes": n,
+                    "precision": mean(0), "recall": mean(1), "f1": mean(2), "return": mean(3),
+                    "false_positives": sum(v[4] for v in vals), "steps": round(sum(v[5] for v in vals) / n, 1)})
+    return out
 
 OUT = ROOT / "frontend" / "data"
 DEMO_SLOT = ("dev", "interaction_boundary_minus_small")
@@ -93,12 +158,17 @@ def main() -> int:
             if (split, e["slot"]) == DEMO_SLOT:
                 demo = e
     ep = generate(demo["seed"], demo["config"])
+    specs = [e for split in ("train", "dev") for e in load_manifest(split)["episodes"]]
     extra = {"demo_episode_id": demo["episode_id"], "demo_seed": demo["seed"],
-             "walkthrough": walkthrough(ep), "rewards": reward_table(ep)}
+             "walkthrough": walkthrough(ep), "rewards": reward_table(ep), "policies": policy_results(specs)}
     (OUT / "index.js").write_bytes((js("GENESIS_INDEX", index) + js("GENESIS_DEMO", extra)).encode("utf-8"))
     print(f"{len(index)} episodes, demo {demo['episode_id']} -> {OUT}")
     for r in extra["rewards"]:
         print(f"  {r['reward']:+.3f}  F1={r['f1']:.3f}  {r['name']}")
+    print("policies on 20 open episodes:")
+    for r in extra["policies"]:
+        print(f"  {r['name']:24s} P={r['precision']:.3f} R={r['recall']:.3f} F1={r['f1']:.3f} "
+              f"return={r['return']:+.3f} FP={r['false_positives']} steps={r['steps']}")
     return 0
 
 

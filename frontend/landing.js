@@ -49,6 +49,39 @@
     ])));
   }
 
+  // Results: strategies on the −1 … +1 reward scale, plus the full metrics table.
+  const ladder = document.getElementById("ladder");
+  const ptb = document.querySelector("#policy-table tbody");
+  if (demo && demo.policies && ladder && ptb) {
+    const fmt = (x, d) => x.toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d });
+    const rungs = demo.policies.map((p) => {
+      const v = p.return;
+      const w = (Math.abs(v) / 2) * 100;
+      const bar = el("div", { class: "rung__bar " + (v < 0 ? "neg" : "pos"),
+        style: v < 0 ? `left:${50 - w}%;width:${w}%` : `left:50%;width:${w}%` });
+      const val = el("div", { class: "rung__val " + (v < 0 ? "neg" : "pos"), text: signed(v, 3),
+        style: v < 0 ? `right:calc(${50 + w}% + 8px)` : `left:calc(${50 + w}% + 8px)` });
+      // Bars that reach the edge carry their value inside, in white, so it never leaves the track.
+      if (v >= 0 && 50 + w > 86) { val.style.left = ""; val.style.right = `calc(${50 - w}% + 8px)`; val.style.color = "#fff"; }
+      if (v < 0 && 50 - w < 14) { val.style.right = ""; val.style.left = `calc(${50 - w}% + 8px)`; val.style.color = "#fff"; }
+      return el("div", { class: "rung", role: "listitem", "aria-label": `${p.name}: награда ${signed(v, 3)}` }, [
+        el("div", { class: "rung__name" }, [p.name, el("span", { text: p.note })]),
+        el("div", { class: "rung__track" }, [bar, val]),
+      ]);
+    });
+    ladder.replaceChildren(...rungs, el("div", { class: "ladder__axis", "aria-hidden": "true" },
+      [el("span", { text: "−1" }), el("span", { text: "0" }), el("span", { text: "+1" })]));
+    ptb.replaceChildren(...demo.policies.map((p) => el("tr", {}, [
+      el("td", {}, [el("strong", { text: p.name }), el("span", { class: "small muted", style: "display:block" }, p.note)]),
+      el("td", { class: "num", text: fmt(p.precision, 3) }),
+      el("td", { class: "num", text: fmt(p.recall, 3) }),
+      el("td", { class: "num", text: fmt(p.f1, 3) }),
+      el("td", { class: "num", text: p.false_positives }),
+      el("td", { class: "num", text: fmt(p.steps, 1) }),
+      el("td", { class: "num " + (p.return < 0 ? "neg" : "pos"), text: signed(p.return, 3) }),
+    ])));
+  }
+
   // Episode table and stats.
   const index = window.GENESIS_INDEX;
   const etb = document.querySelector("#episode-table tbody");

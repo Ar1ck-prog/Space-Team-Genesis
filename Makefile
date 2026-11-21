@@ -1,7 +1,7 @@
 PYTHON ?= python3
 export PYTHONPATH := src:.
 
-.PHONY: check report demo serve
+.PHONY: check report demo serve site
 
 check:
 	$(PYTHON) -m space_team_genesis.cli check
@@ -14,3 +14,7 @@ demo:
 
 serve:
 	$(PYTHON) -m space_team_genesis.cli serve
+
+# Site + API on one origin, open mode: the sandbox shows the terminal reward (demo only).
+site:
+	$(PYTHON) -m space_team_genesis.cli serve --mode open

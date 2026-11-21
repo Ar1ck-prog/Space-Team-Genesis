@@ -16,6 +16,7 @@ from auditgym.policies import MarkEverythingPolicy, RandomExplorer, SimpleReconc
 
 from .http_api import EnvironmentHttpApp
 from .integration import OfflineEpisodeFactory, make_environment, score_oracle
+from .web import SiteWithApi
 
 
 def _config(profile: str, size: str, mode: str) -> dict:
@@ -117,9 +118,18 @@ def check_all() -> int:
 
 
 def serve(args) -> int:
-    app = EnvironmentHttpApp(OfflineEpisodeFactory(evaluation_mode="closed"))
+    # The server, never the client, chooses the evaluation mode (contract section 7).
+    app = EnvironmentHttpApp(OfflineEpisodeFactory(evaluation_mode=args.mode))
+    site = Path(args.site) if args.site else None
+    if site is not None and (site / "index.html").is_file():
+        app = SiteWithApi(app, site)
+    elif args.site:
+        print(f"site directory {args.site!r} not found; serving the API only")
+        site = None
     with make_server(args.host, args.port, app) as server:
-        print(f"HTTP API: http://{args.host}:{args.port}/api/v1/episodes")
+        if site is not None:
+            print(f"Site:     http://{args.host}:{args.port}/")
+        print(f"HTTP API: http://{args.host}:{args.port}/api/v1/episodes  (evaluation mode: {args.mode})")
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -140,9 +150,13 @@ def main(argv=None) -> int:
     run.add_argument("--out", default="outputs/trajectories.jsonl")
     summary = commands.add_parser("report", help="trusted diagnostics on open episode sets")
     summary.add_argument("--split", choices=("train", "dev", "all"), default="all")
-    http = commands.add_parser("serve", help="serve the public HTTP API")
+    http = commands.add_parser("serve", help="serve the public HTTP API (and the site, when present)")
     http.add_argument("--host", default="127.0.0.1")
     http.add_argument("--port", type=int, default=8000)
+    http.add_argument("--mode", choices=("closed", "open"), default="closed",
+                      help="evaluation mode chosen by the server; open returns the terminal reward to the client")
+    http.add_argument("--site", default="frontend" if Path("frontend/index.html").is_file() else "",
+                      help="static site directory served at / (empty string disables it)")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
