@@ -2,8 +2,7 @@
 
 If they disagree, a submission the environment accepts could be scored -1 by the evaluator
 (or the reverse). Runs every matcher vector through the public AuditEnvironment API.
-Known, documented difference: the environment rejects arrays that are not already sorted,
-the evaluator sorts them (docs/MATCHER.md, open question).
+The environment and evaluator both accept unsorted ID arrays and canonicalize them.
 """
 
 import json
@@ -18,7 +17,6 @@ except ImportError:  # src/ layout: run with PYTHONPATH=src
     AuditEnvironment = None
 
 DATA = json.loads((Path(__file__).resolve().parent / "fixtures" / "matcher_vectors.json").read_text(encoding="utf-8"))
-KNOWN_DIFFERENCES = {"affected_unsorted"}
 
 
 class _Accept:
@@ -56,11 +54,8 @@ class TestValidatorsAgree(unittest.TestCase):
         for v in DATA["vectors"]:
             with self.subTest(v["name"]):
                 env_ok, ev_ok = env_accepts(v["submission"]), evaluator_accepts(v["submission"])
-                if v["name"] in KNOWN_DIFFERENCES:
-                    self.assertEqual((env_ok, ev_ok), (False, True))
-                else:
-                    self.assertEqual(env_ok, ev_ok)
-                    self.assertEqual(ev_ok, v["expect"]["valid"])
+                self.assertEqual(env_ok, ev_ok)
+                self.assertEqual(ev_ok, v["expect"]["valid"])
 
 
 if __name__ == "__main__":

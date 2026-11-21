@@ -12,13 +12,14 @@ def public_episode_data(episode: Any) -> EpisodeData:
     tables = episode.tables
     invoices = [dict(row, id=row["invoice_id"]) for row in tables["invoices"]]
     payments = [dict(row, id=row["payment_id"]) for row in tables["payments"]]
-    documents = {row["doc_id"]: dict(row, id=row["doc_id"])
+    documents = {row["doc_id"]: {"id": row["doc_id"], **{key: value for key, value in row.items() if key != "doc_id"}}
                  for row in [*tables["invoices"], *tables["payments"]]}
     return EpisodeData(
         episode_id=episode.episode_id, manifest=copy.deepcopy(episode.manifest),
         policy_summary=copy.deepcopy(episode.policy), documents=documents,
         records={
-            "ledger": [dict(row, id=row["row_id"]) for row in tables["ledger"]],
+            "ledger": [{"id": row["row_id"], **{key: value for key, value in row.items() if key != "row_id"}}
+                       for row in tables["ledger"]],
             "invoices": invoices, "payments": payments,
             "fx": [dict(row, id=f"fx:{row['date']}:{row['source_currency']}:{row['target_currency']}")
                    for row in tables["fx"]],

@@ -1,7 +1,7 @@
 """Space Team Genesis: reproducible RL environment for training financial-audit agents.
 
-This package currently contains the synthetic company generator (issue #2). The environment,
-evaluator and policies are built on top of it in later issues.
+It contains the synthetic generator, evaluator, matcher and baseline policies.
+The public environment and isolated runtime are wired in space_team_genesis.
 """
 
 from .generator import generate

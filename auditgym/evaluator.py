@@ -6,9 +6,9 @@ Responsibilities (issue #4):
   * keep diagnostics private: `public_reward()` is the only value meant for the policy, and in
     closed mode it is always 0.
 
-Not here (issue #4, Daryi's part, and issue #3): running the evaluator in a separate process
-and wiring the terminal result into reset/step. The environment should call exactly one of
-`score_submission()` / `score_truncation()` per episode and forward `public_reward()`.
+Process isolation and wiring to reset/step live in space_team_genesis.integration.
+The environment calls exactly one of `score_submission()` / `score_truncation()` per episode
+and forwards only `public_reward()`.
 
 Truncation (step or time limit): the case says the final answer is then empty. The evaluator
 therefore scores an empty findings list with the inspection steps actually used (all accepted

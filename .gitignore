@@ -27,3 +27,6 @@ Thumbs.db
 
 # Closed evaluator data must never be committed
 episodes/**/private/
+
+# Local public run outputs
+outputs/

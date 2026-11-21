@@ -1,7 +1,7 @@
 """Contract-first, in-memory implementation of the public reset/step interface.
 
-The generator and matcher are injected deliberately: they are separate work items and
-must not be replaced by hidden fallback data or scoring rules in this module.
+The generator and matcher are injected deliberately. Integrated offline wiring lives
+in space_team_genesis.integration; this module keeps public transition semantics.
 """
 
 from __future__ import annotations
@@ -47,17 +47,10 @@ class SubmissionEvaluator(Protocol):
 
 
 class EpisodeGenerator(Protocol):
-    """Trusted integration point implemented by the synthetic-company generator (#2)."""
+    """Trusted integration point implemented by the synthetic-company generator."""
 
     def generate(self, seed: int, config: Mapping[str, Any]) -> "EpisodeData":
         """Create one episode's public data; private artifacts stay outside this API."""
-
-
-class NeutralEvaluator:
-    """Temporary integration seam until the isolated matcher is wired in (#4)."""
-
-    def evaluate(self, findings: Mapping[str, Any], inspection_steps: int) -> EvaluationResult:
-        return EvaluationResult(reward=0.0)
 
 
 @dataclass(frozen=True)
@@ -65,7 +58,7 @@ class EpisodeData:
     """Public generator output consumed by the environment.
 
     No truth, provenance, seed, filesystem path or closed evaluator setting belongs
-    here. The future generator owns construction and validation of these records.
+    here. The generator owns construction and validation of these records.
     """
 
     episode_id: str
@@ -84,7 +77,7 @@ class EnvironmentRuntime:
     """
 
     generator: EpisodeGenerator
-    evaluator_factory: Callable[[EpisodeData, Mapping[str, Any]], SubmissionEvaluator] = lambda data, config: NeutralEvaluator()
+    evaluator_factory: Callable[[EpisodeData, Mapping[str, Any]], SubmissionEvaluator]
     clock: Callable[[], float] = time.monotonic
     _environment: "AuditEnvironment | None" = field(default=None, init=False)
 
@@ -131,8 +124,8 @@ class AuditEnvironment:
     """A single isolated episode following docs/API_CONTRACT.md."""
 
     data: EpisodeData
+    evaluator: SubmissionEvaluator
     evaluation_mode: str = "open"
-    evaluator: SubmissionEvaluator = field(default_factory=NeutralEvaluator)
     max_steps: int = 100
     time_limit_seconds: int = 60
     clock: Callable[[], float] = time.monotonic
@@ -218,7 +211,9 @@ class AuditEnvironment:
                 # Structural submit errors are terminal. Matcher details stay outside
                 # this process; open mode exposes only the contractually fixed -1.
                 self._terminated = True
-                reward: float | int = -1 if self.evaluation_mode == "open" else 0
+                score_invalid = getattr(self.evaluator, "score_invalid_submission", None)
+                internal_reward = score_invalid(action.get("findings"), self._step - 1).reward if score_invalid else -1
+                reward: float | int = internal_reward if self.evaluation_mode == "open" else 0
                 result = self._result(self._error_observation(validation_error), reward=reward, terminated=True)
             else:
                 result = self._result(self._error_observation(validation_error), reward=0)
@@ -229,8 +224,8 @@ class AuditEnvironment:
 
         # A valid submit takes priority over the budget. Every other 100th step
         # is truncated, including an error action.
-        if not result["terminated"] and self._step >= self.max_steps:
-            result = self._truncate()
+        if not result["terminated"] and (self._step >= self.max_steps or self._timed_out()):
+            result = self._truncate("steps" if self._step >= self.max_steps else "time")
         self._last_observation = result["observation"]
         self._record_trajectory(action, result)
         return copy.deepcopy(result)
@@ -238,11 +233,14 @@ class AuditEnvironment:
     def _timed_out(self) -> bool:
         return self._started_at is not None and self.clock() - self._started_at >= self.time_limit_seconds
 
-    def _truncate(self) -> Mapping[str, Any]:
+    def _truncate(self, reason: str = "time") -> Mapping[str, Any]:
         self._truncated = True
+        score_truncation = getattr(self.evaluator, "score_truncation", None)
+        internal_reward = score_truncation(self._step, reason).reward if score_truncation else 0
+        reward: float | int = internal_reward if self.evaluation_mode == "open" else 0
         observation = {"kind": "truncated", "result": None, "remaining_steps": 0}
         self._last_observation = observation
-        return self._result(observation, reward=0, truncated=True)
+        return self._result(observation, reward=reward, truncated=True)
 
     def _result(
         self,
@@ -285,6 +283,8 @@ class AuditEnvironment:
             "calculator": {"kind", "expression"},
             "submit": {"kind", "findings"},
         }
+        if kind == "submit" and set(action) != required[kind]:
+            return None, "invalid_submission"
         if kind not in required or set(action) != required[kind]:
             return None, "invalid_action"
         if kind == "list_records":
@@ -396,7 +396,14 @@ class AuditEnvironment:
     def _submit(self, action: Mapping[str, Any]) -> Mapping[str, Any]:
         self._terminated = True
         findings = action["findings"]
-        evaluation = self.evaluator.evaluate(findings, inspection_steps=self._step - 1)
+        normalized = {
+            "episode_id": findings["episode_id"],
+            "findings": [
+                {**finding, "affected_ids": sorted(finding["affected_ids"]), "evidence_ids": sorted(finding["evidence_ids"])}
+                for finding in findings["findings"]
+            ],
+        }
+        evaluation = self.evaluator.evaluate(normalized, inspection_steps=self._step - 1)
         reward: float | int = evaluation.reward if self.evaluation_mode == "open" else 0
         observation = {
             "kind": "submission",
@@ -489,18 +496,18 @@ def _validate_reset_request(seed: int, config: Mapping[str, Any]) -> None:
         raise ValueError("seed must be a safe non-negative integer")
     if not isinstance(config, Mapping) or set(config) != expected:
         raise ValueError("config does not match the v1 reset schema")
-    if config["dataset_profile"] not in {"train", "dev"}:
+    if not isinstance(config["dataset_profile"], str) or config["dataset_profile"] not in {"train", "dev"}:
         raise ValueError("dataset_profile must be train or dev")
-    if config["company_size"] not in {"small", "medium", "large"}:
+    if not isinstance(config["company_size"], str) or config["company_size"] not in {"small", "medium", "large"}:
         raise ValueError("company_size must be small, medium or large")
     enabled = config["enabled_issue_types"]
-    if not isinstance(enabled, list) or not enabled or len(enabled) != len(set(enabled)) or any(item not in ISSUE_TYPES for item in enabled):
+    if not isinstance(enabled, list) or not enabled or any(not isinstance(item, str) or item not in ISSUE_TYPES for item in enabled) or len(enabled) != len(set(enabled)):
         raise ValueError("enabled_issue_types must be a unique non-empty issue-type list")
     if config["max_steps"] != 100:
         raise ValueError("max_steps must be 100")
     if not _is_plain_int(config["time_limit_seconds"]) or not 1 <= config["time_limit_seconds"] <= 60:
         raise ValueError("time_limit_seconds must be in 1..60")
-    if config["evaluation_mode"] not in {"open", "closed"}:
+    if not isinstance(config["evaluation_mode"], str) or config["evaluation_mode"] not in {"open", "closed"}:
         raise ValueError("evaluation_mode must be open or closed")
 
 
@@ -535,11 +542,11 @@ def _valid_findings_shape(findings: Any, episode_id: str, currencies: set[str]) 
         affected, evidence = finding["affected_ids"], finding["evidence_ids"]
         if not isinstance(affected, list) or not isinstance(evidence, list) or not 1 <= len(evidence) <= 10:
             return False
-        if affected != sorted(set(affected)) or evidence != sorted(set(evidence)):
-            return False
         if not all(isinstance(item, str) and any(_is_identifier(item, prefix) for prefix in ("ledger:", "invoice:", "payment:", "fx:")) for item in affected):
             return False
         if not all(isinstance(item, str) and any(_is_identifier(item, prefix) for prefix in ("ledger:", "invoice:", "payment:", "fx:", "doc:")) for item in evidence):
+            return False
+        if len(affected) != len(set(affected)) or len(evidence) != len(set(evidence)):
             return False
         prefixes = {item.split(":", 1)[0] for item in affected}
         if finding["type"] == "duplicate_invoice" and (len(affected) < 2 or prefixes != {"invoice"}):
