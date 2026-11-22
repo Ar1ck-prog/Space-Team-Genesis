@@ -14,6 +14,8 @@ import time
 from dataclasses import dataclass, field
 from decimal import Decimal, DivisionByZero, InvalidOperation, localcontext
 from typing import Any, Callable, Mapping, Protocol, Sequence
+from auditgym.version import ENVIRONMENT_VERSION
+
 
 
 TABLES = ("ledger", "invoices", "payments", "fx")
@@ -169,7 +171,7 @@ class AuditEnvironment:
             "observation": copy.deepcopy(observation),
             "info": {
                 "episode_id": self.data.episode_id,
-                "environment_version": str(self.data.manifest.get("schema_version", "1.0.0")),
+                "environment_version": ENVIRONMENT_VERSION,
                 "step": 0,
             },
         }

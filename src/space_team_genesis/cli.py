@@ -15,6 +15,7 @@ from auditgym.dataset import SPLITS, check as check_dataset, load_manifest
 from auditgym.policies import MarkEverythingPolicy, RandomExplorer, SimpleReconciliationPolicy, run_policy
 
 from .http_api import EnvironmentHttpApp
+from .hide_error_http import HideErrorDemoApp
 from .integration import OfflineEpisodeFactory, make_environment, score_oracle
 
 
@@ -127,6 +128,17 @@ def serve(args) -> int:
     return 0
 
 
+def jury_demo(args) -> int:
+    """Serve the one-screen, internet-free jury scenario."""
+    with make_server(args.host, args.port, HideErrorDemoApp()) as server:
+        print(f"Jury demo: http://{args.host}:{args.port}/hide-error-demo")
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m space_team_genesis.cli")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -143,6 +155,9 @@ def main(argv=None) -> int:
     http = commands.add_parser("serve", help="serve the public HTTP API")
     http.add_argument("--host", default="127.0.0.1")
     http.add_argument("--port", type=int, default=8000)
+    jury = commands.add_parser("jury-demo", help="serve the offline Hide the error from AI jury screen")
+    jury.add_argument("--host", default="127.0.0.1")
+    jury.add_argument("--port", type=int, default=8080)
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
@@ -152,6 +167,8 @@ def main(argv=None) -> int:
         return run_one(args)
     if args.command == "report":
         return report(args)
+    if args.command == "jury-demo":
+        return jury_demo(args)
     return serve(args)
 
 

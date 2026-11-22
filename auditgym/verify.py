@@ -19,6 +19,8 @@ from .books import Books, audit
 from .config import ISSUE_TYPES
 from .money import EXPONENTS, JS_SAFE_INT, convert_minor
 from .timeutil import parse
+from .timeutil import ZONES
+from .generator import make_policy
 
 INV_KEYS = ["doc_id", "invoice_id", "entity_id", "issued_at", "due_at", "currency", "total_minor", "line_items"]
 PAY_KEYS = ["doc_id", "payment_id", "timestamp", "currency", "amount_minor", "invoice_refs"]
@@ -69,6 +71,20 @@ def check_schema(ep) -> list:
         errs.append("document_count mismatch")
     if not (TS_RE.match(m["period_start"]) and TS_RE.match(m["period_end"])):
         errs.append("period bounds must be ISO-8601 with offset")
+    zones = dict(ZONES)
+    if m["timezone"] not in zones:
+        errs.append("unsupported company timezone")
+    else:
+        try:
+            start, end = parse(m["period_start"]), parse(m["period_end"])
+            offset = zones[m["timezone"]].replace(":", "")
+            if start >= end or start.strftime("%z") != offset or end.strftime("%z") != offset:
+                errs.append("period bounds disagree with company timezone")
+        except (TypeError, ValueError):
+            errs.append("invalid period bounds")
+    if not isinstance(ep.policy, dict) or ep.policy != make_policy(m) or \
+            ep.policy.get("rounding") != m["rounding_rule"]:
+        errs.append("policy differs from the contract")
     ccys = set(m["currency_decimals"])
     for r in ep.tables["ledger"]:
         if list(r) != LEDGER_KEYS:
