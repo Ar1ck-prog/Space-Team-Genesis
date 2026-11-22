@@ -11,7 +11,11 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     document.documentElement.classList.add("js");
-    (function (t) { if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); })(new URLSearchParams(location.search).get("theme"));
+    (function () {
+      var t = new URLSearchParams(location.search).get("theme");
+      if (t !== "light" && t !== "dark") { try { t = localStorage.getItem("genesis-theme"); } catch (e) { t = null; } }
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    })();
   </script>
 </head>
 <body>
@@ -347,6 +351,7 @@ docker build -t space-team-genesis .</pre>
 
 <script src="data/index.js"></script>
 <script src="common.js"></script>
+<script src="ui.js"></script>
 <script src="landing.js"></script>
 </body>
 </html>

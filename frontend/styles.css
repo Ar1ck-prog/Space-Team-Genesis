@@ -93,7 +93,24 @@ a:hover { text-decoration-color: var(--pencil); }
   text-decoration: none; font-size: 15px; margin-bottom: -2px;
 }
 .tab b { font-family: var(--display); font-weight: 700; }
-.tab[aria-current="page"], .tab:hover { background: var(--ink); color: var(--paper); }
+.tab { transition: background-color .2s ease, color .2s ease, transform .2s ease; }
+.tab[aria-current="page"], .tab.is-active, .tab:hover { background: var(--ink); color: var(--paper); }
+/* the tab of the section in view is lifted, like a pulled binder divider */
+.tab.is-active { transform: translateY(-3px); box-shadow: 0 3px 0 var(--pencil) inset; }
+@media (prefers-reduced-motion: reduce) { .tab { transition: none; } .tab.is-active { transform: none; } }
+
+/* theme / fullscreen controls next to the brand */
+.brand { margin-right: 10px; }
+.ui-ctrls { display: flex; gap: 6px; margin-right: auto; padding-bottom: 8px; flex: none; }
+.ui-ctrl { width: 36px; height: 36px; display: grid; place-items: center; padding: 0; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 8px; background: var(--sheet); color: var(--ink); }
+.ui-ctrl svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ui-ctrl:hover { background: var(--ink); color: var(--paper); }
+.ui-ctrl[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* sandbox and explorer use the whole screen width */
+.page.play, .page.explorer { max-width: 1680px; }
+:fullscreen .page.play, :fullscreen .page.explorer { max-width: none; }
 @media (max-width: 760px) {
   .tab { padding: 6px 10px 7px; font-size: 14px; }
   .tab .tab__label { display: none; }
