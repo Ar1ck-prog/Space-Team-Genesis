@@ -2,7 +2,7 @@
 
 Воспроизводимая офлайн RL-среда для ИИ-аудитора (FinTech-кейс хакатона Space Team). Генератор создаёт согласованные синтетические компании, агент исследует открытые записи через `reset/step`, а изолированный оценщик проверяет выводы и считает награду.
 
-Контракт: [docs/API_CONTRACT.md](docs/API_CONTRACT.md). Условия кейса: [docs/CASE.md](docs/CASE.md). [Результаты прогонов](docs/RESULTS.md). Демо: [docs/DEMO.md](docs/DEMO.md).
+Контракт: [docs/API_CONTRACT.md](docs/API_CONTRACT.md). Условия кейса: [docs/CASE.md](docs/CASE.md). [Результаты прогонов](docs/RESULTS.md). Демо: [docs/DEMO.md](docs/DEMO.md). [Доверенная лаборатория версий агента](docs/LAB.md) — отдельный офлайн-инструмент разработчика.
 
 ## Быстрый запуск
 

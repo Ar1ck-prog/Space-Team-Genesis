@@ -21,6 +21,9 @@ class EvaluationMetrics:
     f1: float
     return_: float | None = None
 
+    tp: int | None = None
+    fp: int | None = None
+    fn: int | None = None
 
 @dataclass(frozen=True)
 class PolicyRun:
@@ -33,6 +36,7 @@ class PolicyRun:
     truncated: bool
     metrics: EvaluationMetrics | None
     trajectory: tuple[Mapping[str, Any], ...]
+    action_elapsed_seconds: tuple[float, ...] = ()
 
 
 class MetricsProvider(Protocol):
@@ -43,8 +47,14 @@ def run_policy(environment: Any, policy: Any, *, metrics_provider: MetricsProvid
     """Run a policy via public reset/step; optional metrics stay in trusted runner."""
     started, reset = time.perf_counter(), environment.reset()
     observation = reset["observation"]
+    action_times = []
     while True:
-        final = environment.step(policy.next_action(copy.deepcopy(observation)))
+        action = policy.next_action(copy.deepcopy(observation))
+        if hasattr(environment, "clock") and getattr(environment, "_started_at", None) is not None:
+            action_times.append(max(0.0, environment.clock() - environment._started_at))
+        else:
+            action_times.append(time.perf_counter() - started)
+        final = environment.step(action)
         observation = final["observation"]
         if final["terminated"] or final["truncated"]:
             break
@@ -56,7 +66,7 @@ def run_policy(environment: Any, policy: Any, *, metrics_provider: MetricsProvid
     return PolicyRun(policy.name, reset["info"]["episode_id"], reported_return,
                      max(0, final["info"]["step"] - 1 if final["terminated"] else final["info"]["step"]),
                      time.perf_counter() - started, final["terminated"], final["truncated"], metrics,
-                     tuple(environment.trajectory()))
+                     tuple(environment.trajectory()), tuple(action_times))
 
 
 class RandomExplorer:

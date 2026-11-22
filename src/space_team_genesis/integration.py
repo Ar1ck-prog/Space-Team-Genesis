@@ -24,8 +24,8 @@ from .environment import AuditEnvironment, EpisodeData, EvaluationResult
 _RESPONSE_TIMEOUT = 60
 
 
-def _metrics(result: Any) -> tuple[float, float, float, float]:
-    return result.precision, result.recall, result.f1, result.reward
+def _metrics(result: Any) -> tuple[float, float, float, float, int, int, int]:
+    return result.precision, result.recall, result.f1, result.reward, result.tp, result.fp, result.fn
 
 
 class _PrivateOracleProvider:
@@ -63,9 +63,9 @@ class _PrivateOracleSession:
         return self._evaluator.score_submission(findings, 0)
 
 
-def _evaluator_worker(connection: Connection, seed: int, config: dict[str, Any], trusted: bool) -> None:
+def _evaluator_worker(connection: Connection, seed: int, config: dict[str, Any], trusted: bool, plan: dict | None = None) -> None:
     try:
-        episode = generate(seed, config)
+        episode = generate(seed, config, plan=plan)
         evaluator = Evaluator.from_episode(episode, mode=config["evaluation_mode"])
         connection.send(("ready", public_episode_data(episode)))
         while True:
@@ -147,16 +147,16 @@ class IsolatedEvaluator:
     def metrics_for_completed_episode(self, environment: AuditEnvironment) -> EvaluationMetrics:
         if not self._trusted or not environment.finalized or environment.evaluator is not self:
             raise PermissionError("Private metrics require a completed trusted episode")
-        precision, recall, f1, reward = self._request("metrics")
+        precision, recall, f1, reward, tp, fp, fn = self._request("metrics")
         self.close()
-        return EvaluationMetrics(precision, recall, f1, reward)
+        return EvaluationMetrics(precision, recall, f1, reward, tp, fp, fn)
 
     def oracle_metrics(self) -> EvaluationMetrics:
         if not self._trusted:
             raise PermissionError("Oracle is evaluator-only")
-        precision, recall, f1, reward = self._request("oracle")
+        precision, recall, f1, reward, tp, fp, fn = self._request("oracle")
         self.close()
-        return EvaluationMetrics(precision, recall, f1, reward)
+        return EvaluationMetrics(precision, recall, f1, reward, tp, fp, fn)
 
     def close(self) -> None:
         if self._process.is_alive():
@@ -171,13 +171,13 @@ class IsolatedEvaluator:
         self._connection.close()
 
 
-def _start(seed: int, config: Mapping[str, Any], *, trusted: bool) -> tuple[EpisodeData, IsolatedEvaluator]:
+def _start(seed: int, config: Mapping[str, Any], *, trusted: bool, plan: dict | None = None) -> tuple[EpisodeData, IsolatedEvaluator]:
     checked_seed = validate_seed(seed)
     checked_config = validate_config(dict(config))
     context = mp.get_context("spawn")
     parent, child = context.Pipe()
     process = context.Process(
-        target=_evaluator_worker, args=(child, checked_seed, checked_config, trusted), daemon=True
+        target=_evaluator_worker, args=(child, checked_seed, checked_config, trusted, plan), daemon=True
     )
     process.start()
     child.close()
@@ -236,3 +236,17 @@ class OfflineEpisodeFactory:
             "evaluation_mode": self.evaluation_mode,
         }
         return make_environment(secrets.randbits(53), config)
+
+
+def make_diagnostic_environment(seed: int, config: Mapping[str, Any], plan: dict) -> AuditEnvironment:
+    """Trusted-only plan override; never wired to HTTP or agent-facing reset/step."""
+    if not isinstance(plan, dict):
+        raise ValueError("diagnostic plan must be an object")
+    data, evaluator = _start(seed, config, trusted=True, plan=plan)
+    return AuditEnvironment(
+        data=data,
+        evaluator=evaluator,
+        evaluation_mode=config["evaluation_mode"],
+        max_steps=config["max_steps"],
+        time_limit_seconds=config["time_limit_seconds"],
+    )

@@ -41,6 +41,7 @@ POLICY_KEYS = ["fx_rate_date", "period_boundary", "rounding", "fx_rate_direction
                "invoice_posting", "payment_posting", "allocation_order", "refunds"]
 REQUIRED_ACCOUNTS = {"1000", "1200", "2400", "4000", "7900"}
 ZONE_OFFSETS = dict(ZONES)
+from .generator import make_policy
 
 INV_KEYS = ["doc_id", "invoice_id", "entity_id", "issued_at", "due_at", "currency", "total_minor", "line_items"]
 PAY_KEYS = ["doc_id", "payment_id", "timestamp", "currency", "amount_minor", "invoice_refs"]
@@ -136,6 +137,9 @@ def check_schema(ep) -> list:
         errs += _period_problems(m)
     if m.get("rounding_rule") != ROUNDING_RULE:
         errs.append("manifest rounding_rule differs from the contract")
+    # Cross-check (from main): the published policy must also equal what the generator derives from the manifest.
+    if not isinstance(ep.policy, dict) or ep.policy != make_policy(m) or ep.policy.get("rounding") != m["rounding_rule"]:
+        errs.append("policy differs from the contract")
     ccys = set(m["currency_decimals"])
     for r in ep.tables["ledger"]:
         if list(r) != LEDGER_KEYS:
