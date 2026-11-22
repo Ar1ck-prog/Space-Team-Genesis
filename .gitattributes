@@ -2,3 +2,4 @@
 episodes/** text eol=lf
 datasets/** text eol=lf
 frontend/data/** text eol=lf
+trajectories/** text eol=lf

@@ -2,19 +2,18 @@
 (function () {
   const { el, signed, TYPE_RU, SCEN_RU, SIZE_RU } = window.G;
 
-  // Hero: play the audit marks once, when the working paper is visible.
-  const wp = document.getElementById("workpaper");
-  if (wp) {
-    const play = () => wp.classList.add("play");
-    if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver((entries) => {
-        if (entries.some((e) => e.isIntersecting)) { play(); io.disconnect(); }
-      }, { threshold: 0.4 });
-      io.observe(wp);
-    } else {
-      play();
-    }
+  // One-shot scroll-in sequences: hero audit marks, the two-books diagram, the reward ladder.
+  function playWhenVisible(node, threshold) {
+    if (!node) return;
+    const play = () => node.classList.add("play");
+    if (!("IntersectionObserver" in window)) return play();
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { play(); io.disconnect(); }
+    }, { threshold });
+    io.observe(node);
   }
+  playWhenVisible(document.getElementById("workpaper"), 0.4);
+  playWhenVisible(document.getElementById("two-books"), 0.45);
 
   // Reward calculator: the contract's formula and zero rules.
   const ids = ["tp", "fp", "fn", "steps"];
@@ -43,9 +42,9 @@
   if (demo && tbody) {
     tbody.replaceChildren(...demo.rewards.map((r) => el("tr", {}, [
       el("td", {}, [el("strong", { text: r.name }), el("span", { class: "small muted", style: "display:block" }, r.why)]),
-      el("td", { class: "num", text: r.steps }),
-      el("td", { class: "num", text: r.f1.toLocaleString("ru-RU", { maximumFractionDigits: 3 }) }),
-      el("td", { class: "num " + (r.reward < 0 ? "neg" : r.reward > 0.9 ? "pos" : ""), text: signed(r.reward, 3) }),
+      el("td", { class: "num", "data-label": "Шаги", text: r.steps }),
+      el("td", { class: "num", "data-label": "F1", text: r.f1.toLocaleString("ru-RU", { maximumFractionDigits: 3 }) }),
+      el("td", { class: "num " + (r.reward < 0 ? "neg" : r.reward > 0.9 ? "pos" : ""), "data-label": "Награда", text: signed(r.reward, 3) }),
     ])));
   }
 
@@ -54,7 +53,7 @@
   const ptb = document.querySelector("#policy-table tbody");
   if (demo && demo.policies && ladder && ptb) {
     const fmt = (x, d) => x.toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d });
-    const rungs = demo.policies.map((p) => {
+    const rungs = demo.policies.map((p, i) => {
       const v = p.return;
       const w = (Math.abs(v) / 2) * 100;
       const bar = el("div", { class: "rung__bar " + (v < 0 ? "neg" : "pos"),
@@ -64,21 +63,22 @@
       // Bars that reach the edge carry their value inside, in white, so it never leaves the track.
       if (v >= 0 && 50 + w > 86) { val.style.left = ""; val.style.right = `calc(${50 - w}% + 8px)`; val.style.color = "#fff"; }
       if (v < 0 && 50 - w < 14) { val.style.right = ""; val.style.left = `calc(${50 - w}% + 8px)`; val.style.color = "#fff"; }
-      return el("div", { class: "rung", role: "listitem", "aria-label": `${p.name}: награда ${signed(v, 3)}` }, [
+      return el("div", { class: "rung", role: "listitem", style: `--i:${i}`, "aria-label": `${p.name}: награда ${signed(v, 3)}` }, [
         el("div", { class: "rung__name" }, [p.name, el("span", { text: p.note })]),
         el("div", { class: "rung__track" }, [bar, val]),
       ]);
     });
     ladder.replaceChildren(...rungs, el("div", { class: "ladder__axis", "aria-hidden": "true" },
       [el("span", { text: "−1" }), el("span", { text: "0" }), el("span", { text: "+1" })]));
+    playWhenVisible(ladder, 0.35);
     ptb.replaceChildren(...demo.policies.map((p) => el("tr", {}, [
       el("td", {}, [el("strong", { text: p.name }), el("span", { class: "small muted", style: "display:block" }, p.note)]),
-      el("td", { class: "num", text: fmt(p.precision, 3) }),
-      el("td", { class: "num", text: fmt(p.recall, 3) }),
-      el("td", { class: "num", text: fmt(p.f1, 3) }),
-      el("td", { class: "num", text: p.false_positives }),
-      el("td", { class: "num", text: fmt(p.steps, 1) }),
-      el("td", { class: "num " + (p.return < 0 ? "neg" : "pos"), text: signed(p.return, 3) }),
+      el("td", { class: "num", "data-label": "Точность", text: fmt(p.precision, 3) }),
+      el("td", { class: "num", "data-label": "Полнота", text: fmt(p.recall, 3) }),
+      el("td", { class: "num", "data-label": "F1", text: fmt(p.f1, 3) }),
+      el("td", { class: "num", "data-label": "Ложных выводов", text: p.false_positives }),
+      el("td", { class: "num", "data-label": "Шагов", text: fmt(p.steps, 1) }),
+      el("td", { class: "num " + (p.return < 0 ? "neg" : "pos"), "data-label": "Награда", text: signed(p.return, 3) }),
     ])));
   }
 
@@ -106,10 +106,10 @@
       return el("tr", {}, [
         el("td", {}, [e.split, el("span", { class: "small muted", style: "display:block" }, "seed " + e.seed)]),
         el("td", {}, [el("a", { href: "explorer.html?ep=" + encodeURIComponent(e.episode_id), text: e.description })]),
-        el("td", {}, [SIZE_RU[e.size] + ", " + e.base_currency,
+        el("td", { "data-label": "Компания" }, [SIZE_RU[e.size] + ", " + e.base_currency,
           el("span", { class: "small muted", style: "display:block" }, e.timezone + " " + e.period_start.slice(-6))]),
-        el("td", { class: "num", text: e.record_counts.ledger }),
-        el("td", {}, types.length ? [...types, ...scen] : [el("span", { class: "muted", text: "нет, книга чистая" })]),
+        el("td", { class: "num", "data-label": "Проводок", text: e.record_counts.ledger }),
+        el("td", { class: "td-pills", "data-label": "Ошибки" }, types.length ? [...types, ...scen] : [el("span", { class: "muted", text: "нет, книга чистая" })]),
       ]);
     }));
   }

@@ -160,6 +160,9 @@
       $("board").hidden = false;
       document.querySelectorAll(".action-form button, .autopilot button").forEach((b) => { b.disabled = false; });
       $("next-page").disabled = true;
+      buildStrip();
+      $("ring-value").setAttribute("stroke-dashoffset", "0");
+      $("ring").classList.remove("is-low");
       clearInterval(S.timer);
       S.timer = setInterval(tick, 250);
       tick();
@@ -171,10 +174,38 @@
     }
   }
 
+  // ------------------------------------------------------------ budget visuals (SVG)
+  const RING = 2 * Math.PI * 26;
+  function buildStrip() {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = $("strip");
+    svg.replaceChildren();
+    const cols = matchMedia("(max-width: 760px)").matches ? 25 : 50; // bigger cells on phones
+    svg.setAttribute("viewBox", `0 0 ${cols * 10 - 1} ${(100 / cols) * 11 - 2}`);
+    for (let i = 0; i < 100; i++) {
+      const r = document.createElementNS(ns, "rect");
+      r.setAttribute("x", String((i % cols) * 10));
+      r.setAttribute("y", String(Math.floor(i / cols) * 11));
+      r.setAttribute("width", "9");
+      r.setAttribute("height", "9");
+      r.setAttribute("rx", "1.5");
+      svg.append(r);
+    }
+  }
+  function markStep(n, kind) {
+    const cell = $("strip").children[n - 1];
+    if (cell) cell.setAttribute("class", kind === "error" ? "err" : kind === "submission" ? "sub" : "used");
+  }
+
   function tick() {
     const left = Math.max(0, TIME_LIMIT - (performance.now() - S.startedAt) / 1000);
     $("m-time").textContent = S.finished ? "—" : `${Math.ceil(left)} с`;
     $("m-time").classList.toggle("neg", !S.finished && left < 10);
+    if (!S.finished) {
+      $("ring-value").setAttribute("stroke-dashoffset", String(RING * (1 - left / TIME_LIMIT)));
+      $("ring-text").textContent = String(Math.ceil(left));
+      $("ring").classList.toggle("is-low", left < 10);
+    }
   }
 
   async function step(action) {
@@ -186,6 +217,7 @@
       S.steps = res.info.step;
       S.remaining = res.observation.remaining_steps;
       $("m-steps").textContent = S.remaining;
+      markStep(S.steps, res.observation.kind);
       renderObservation(res.observation);
       $("log").prepend(el("li", {}, [el("strong", { text: describe(action) }), " → ", outcome(res.observation)]));
       if (res.terminated || res.truncated) finish(res);

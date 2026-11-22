@@ -113,6 +113,69 @@
           <p>Агент видит записи только через пять действий. Эталон и seed остаются у оценщика.</p>
         </li>
       </ol>
+
+      <figure class="two-books" id="two-books" aria-labelledby="two-books-cap">
+        <svg class="tb-wide" viewBox="0 0 680 250" role="img" aria-labelledby="two-books-title two-books-desc">
+          <title id="two-books-title">Две книги одним кодом</title>
+          <desc id="two-books-desc">Слева чистая книга, справа опубликованная. Отличается одна строка кассы: 9 334,21 против 9 403,08 EUR. Разница 68,87 EUR и есть сумма ошибки в эталоне.</desc>
+          <g class="tb-sheet">
+            <rect x="8" y="10" width="300" height="196" rx="6"/>
+            <text x="24" y="38" class="tb-title">Чистая книга</text>
+            <line x1="24" y1="50" x2="292" y2="50" class="tb-rule-strong"/>
+            <g class="tb-rows">
+              <text x="24" y="76">1200 дебиторка</text><text x="292" y="76" class="tb-num">11 027,22</text>
+              <text x="24" y="104">4000 выручка</text><text x="292" y="104" class="tb-num">11 027,22</text>
+              <text x="24" y="132">1000 касса</text><text x="292" y="132" class="tb-num">9 334,21</text>
+              <text x="24" y="160">1200 дебиторка</text><text x="292" y="160" class="tb-num">5 139,89</text>
+              <text x="24" y="188">2400 нераспр.</text><text x="292" y="188" class="tb-num">4 194,32</text>
+            </g>
+          </g>
+          <g class="tb-sheet tb-right">
+            <rect x="372" y="10" width="300" height="196" rx="6"/>
+            <text x="388" y="38" class="tb-title">Опубликованная книга</text>
+            <line x1="388" y1="50" x2="656" y2="50" class="tb-rule-strong"/>
+            <g class="tb-rows">
+              <text x="388" y="76">1200 дебиторка</text><text x="656" y="76" class="tb-num">11 027,22</text>
+              <text x="388" y="104">4000 выручка</text><text x="656" y="104" class="tb-num">11 027,22</text>
+              <rect x="560" y="116" width="100" height="22" rx="2" class="tb-marker"/>
+              <text x="388" y="132">1000 касса</text><text x="656" y="132" class="tb-num tb-diff">9 403,08</text>
+              <text x="388" y="160">1200 дебиторка</text><text x="656" y="160" class="tb-num">5 139,89</text>
+              <text x="388" y="188">2400 нераспр.</text><text x="656" y="188" class="tb-num">4 194,32</text>
+            </g>
+          </g>
+          <path class="tb-link" d="M300 128 C 330 128, 342 128, 372 128"/>
+          <ellipse class="tb-circle" cx="610" cy="127" rx="58" ry="17"/>
+          <text x="340" y="236" class="tb-caption">разница 68,87 EUR = сумма ошибки в эталоне</text>
+        </svg>
+        <!-- Phones: the same diagram stacked vertically, so the text stays readable. -->
+        <svg class="tb-narrow" viewBox="0 0 340 395" role="img" aria-labelledby="two-books-title-n two-books-desc-n">
+          <title id="two-books-title-n">Две книги одним кодом</title>
+          <desc id="two-books-desc-n">Сверху чистая книга, снизу опубликованная. Отличается строка кассы: 9 334,21 против 9 403,08 EUR. Разница 68,87 EUR и есть сумма ошибки в эталоне.</desc>
+          <g class="tb-sheet">
+            <rect x="6" y="8" width="314" height="152" rx="6"/>
+            <text x="20" y="32" class="tb-title">Чистая книга</text>
+            <line x1="20" y1="42" x2="306" y2="42" class="tb-rule-strong"/>
+            <text x="20" y="66">1200 дебиторка</text><text x="306" y="66" class="tb-num">11 027,22</text>
+            <text x="20" y="90">4000 выручка</text><text x="306" y="90" class="tb-num">11 027,22</text>
+            <text x="20" y="114">1000 касса</text><text x="306" y="114" class="tb-num">9 334,21</text>
+            <text x="20" y="138">2400 нераспр.</text><text x="306" y="138" class="tb-num">4 194,32</text>
+          </g>
+          <g class="tb-sheet tb-right">
+            <rect x="6" y="196" width="314" height="152" rx="6"/>
+            <text x="20" y="220" class="tb-title">Опубликованная книга</text>
+            <line x1="20" y1="230" x2="306" y2="230" class="tb-rule-strong"/>
+            <text x="20" y="254">1200 дебиторка</text><text x="306" y="254" class="tb-num">11 027,22</text>
+            <text x="20" y="278">4000 выручка</text><text x="306" y="278" class="tb-num">11 027,22</text>
+            <rect x="212" y="286" width="98" height="22" rx="2" class="tb-marker" style="transform-origin: 212px 0"/>
+            <text x="20" y="302">1000 касса</text><text x="306" y="302" class="tb-num tb-diff">9 403,08</text>
+            <text x="20" y="326">2400 нераспр.</text><text x="306" y="326" class="tb-num">4 194,32</text>
+          </g>
+          <path class="tb-link" d="M312 118 C 338 160, 338 250, 314 292"/>
+          <ellipse class="tb-circle" cx="262" cy="297" rx="56" ry="16"/>
+          <text x="166" y="382" class="tb-caption">разница 68,87 EUR = сумма ошибки</text>
+        </svg>
+        <figcaption id="two-books-cap" class="small muted">Генератор проводит чистую и опубликованную книгу одним и тем же кодом. Сумма каждой ошибки в эталоне — их разница, поэтому она всегда настоящая и проверяемая.</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -187,7 +250,7 @@
         <div>
           <h3 style="margin-bottom:10px">Стратегии на настоящем эпизоде</h3>
           <div class="table-wrap">
-            <table id="strategies">
+            <table class="stack-sm" id="strategies">
               <thead><tr><th>Стратегия</th><th class="num">Шаги</th><th class="num">F1</th><th class="num">Награда</th></tr></thead>
               <tbody><tr><td colspan="4" class="muted">Загрузка…</td></tr></tbody>
             </table>
@@ -205,7 +268,7 @@
       <p class="lead">Средняя награда на всех 20 открытых эпизодах. Слабые стратегии проваливаются, атака не проходит, а внимательный аудитор, который видит только открытые записи, доходит почти до предела.</p>
       <div class="ladder" id="ladder" role="list"></div>
       <div class="table-wrap" style="margin-top:22px">
-        <table id="policy-table">
+        <table class="stack-sm" id="policy-table">
           <thead><tr><th>Стратегия</th><th class="num">Точность</th><th class="num">Полнота</th><th class="num">F1</th><th class="num">Ложных выводов</th><th class="num">Шагов</th><th class="num">Награда</th></tr></thead>
           <tbody><tr><td colspan="7" class="muted">Загрузка…</td></tr></tbody>
         </table>
@@ -221,7 +284,7 @@
       <p class="lead">10 train и 10 dev. Каждый набор подобран так, чтобы в нём были чистые компании, все типы ошибок, оба сценария переплетённых ошибок и все размеры.</p>
       <ul class="stats" id="stats"></ul>
       <div class="table-wrap">
-        <table id="episode-table">
+        <table class="stack-sm" id="episode-table">
           <thead><tr><th>Набор</th><th>Что внутри</th><th>Компания</th><th class="num">Проводок</th><th>Ошибки</th></tr></thead>
           <tbody><tr><td colspan="5" class="muted">Загрузка…</td></tr></tbody>
         </table>

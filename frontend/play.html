@@ -67,6 +67,23 @@
       <div><span class="muted small">Времени осталось</span><b id="m-time">60</b></div>
     </div>
 
+    <div class="budget" aria-hidden="true">
+      <svg class="ring" id="ring" viewBox="0 0 64 64">
+        <circle class="ring__track" cx="32" cy="32" r="26"/>
+        <circle class="ring__value" id="ring-value" cx="32" cy="32" r="26" stroke-dasharray="163.36" stroke-dashoffset="0"/>
+        <text x="32" y="32" id="ring-text">60</text>
+      </svg>
+      <div>
+        <svg class="strip" id="strip" viewBox="0 0 500 21"></svg>
+        <div class="budget__legend">
+          <span><i style="background:var(--ink)"></i>шаг потрачен</span>
+          <span><i style="background:var(--pencil)"></i>ошибка действия</span>
+          <span><i style="background:var(--ok)"></i>отправка выводов</span>
+          <span>100 клеток = бюджет шагов, кольцо = 60 секунд</span>
+        </div>
+      </div>
+    </div>
+
     <div class="play-grid">
       <div class="play-actions">
         <div class="autopilot">

@@ -1,7 +1,7 @@
 PYTHON ?= python3
 export PYTHONPATH := src:.
 
-.PHONY: check report demo serve site
+.PHONY: check report demo serve site analysis
 
 check:
 	$(PYTHON) -m space_team_genesis.cli check
@@ -18,3 +18,7 @@ serve:
 # Site + API on one origin, open mode: the sandbox shows the terminal reward (demo only).
 site:
 	$(PYTHON) -m space_team_genesis.cli serve --mode open
+
+# Measured failure analysis per issue type; also rewrites the public trajectories/.
+analysis:
+	$(PYTHON) -m auditgym.analysis --trajectories trajectories
