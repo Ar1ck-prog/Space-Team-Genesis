@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Обозреватель эпизодов</title>
+  <meta name="description" content="Открытые записи эпизода так, как их видит агент: книга, счета, платежи и курсы, по 50 строк на страницу.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    document.documentElement.classList.add("js");
+    (function (t) { if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); })(new URLSearchParams(location.search).get("theme"));
+  </script>
+</head>
+<body>
+<a class="skip" href="#records">К записям</a>
+
+<header class="binder">
+  <nav class="binder__inner" aria-label="Разделы">
+    <a class="brand" href="index.html">Space Team <span>Genesis</span></a>
+    <a class="tab" href="index.html#how"><b>A</b> <span class="tab__label">Как устроено</span></a>
+    <a class="tab" href="index.html#errors"><b>B</b> <span class="tab__label">Ошибки</span></a>
+    <a class="tab" href="index.html#reward"><b>C</b> <span class="tab__label">Награда</span></a>
+    <a class="tab" href="index.html#episodes"><b>D</b> <span class="tab__label">Эпизоды</span></a>
+    <a class="tab tab--wide" href="explorer.html" aria-current="page"><span class="tab__label">Обозреватель</span></a>
+  </nav>
+</header>
+
+<main class="page explorer">
+  <aside class="side" aria-label="Выбор эпизода">
+    <h2>Эпизоды</h2>
+    <ul class="ep-list" id="ep-list"></ul>
+    <h2>Об эпизоде</h2>
+    <dl class="facts" id="facts"></dl>
+  </aside>
+
+  <section id="records" aria-labelledby="ep-title">
+    <h1 id="ep-title" style="font-size:clamp(26px,3vw,36px);font-stretch:85%">Эпизод</h1>
+    <p class="muted" id="ep-sub" style="margin:6px 0 18px"></p>
+
+    <div class="review" id="review" hidden>
+      <h2>Разбор этого эпизода</h2>
+      <p class="small" style="margin:0">Для демо-эпизода ответы уже опубликованы в docs/DEMO.md. Нажмите на ошибку, чтобы увидеть её записи и доказательства.</p>
+      <ol id="review-list"></ol>
+    </div>
+
+    <div class="toolbar">
+      <div class="seg" role="tablist" aria-label="Таблица" id="tabs">
+        <button role="tab" data-table="ledger" aria-selected="true">Книга</button>
+        <button role="tab" data-table="invoices" aria-selected="false">Счета</button>
+        <button role="tab" data-table="payments" aria-selected="false">Платежи</button>
+        <button role="tab" data-table="fx" aria-selected="false">Курсы</button>
+      </div>
+      <label class="search-wrap" style="flex:1 1 220px;display:flex">
+        <span class="skip" style="position:absolute;left:-999px">Поиск по записям</span>
+        <input class="search" id="search" type="search" placeholder="Поиск: ID, счёт, сумма, дата" autocomplete="off">
+      </label>
+    </div>
+    <p class="small muted" id="filter-note" hidden style="margin:-4px 0 10px"></p>
+
+    <div class="table-wrap">
+      <table class="grid-table" id="grid" aria-live="polite">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="pager">
+      <button id="prev" type="button">Назад</button>
+      <span id="page-info"></span>
+      <button id="next" type="button">Дальше</button>
+      <span>По 50 строк, как страница у агента.</span>
+    </div>
+
+    <div class="detail" id="detail" hidden></div>
+  </section>
+</main>
+
+<script src="data/index.js"></script>
+<script src="common.js"></script>
+<script src="explorer.js"></script>
+</body>
+</html>
